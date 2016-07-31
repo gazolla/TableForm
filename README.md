@@ -1,0 +1,56 @@
+# TableForm
+Programmatically use of TableView to create data entry forms for iOS
+
+##Supported Platforms
+
+- iOS 9
+- swift 2.2
+
+##Installing
+
+In order to install, you'll need to copy the `TableViewController` and `Cells` files into your Xcode project. 
+
+##Usage
+
+###create Fields:
+
+```swift
+        let name = Field(name: "name", cellType: NameCell.self)
+        let address = Field(name: "address", cellType: TextCell.self)
+        let birth = Field(name: "birthday", cellType: DateCell.self)
+```
+
+###add Fields to Section:
+
+```swift
+        let sectionPersonal = [name, address, birth]
+```
+
+###group all Sections:
+
+```swift
+        let sections = [sectionPersonal, sectionProfessional, sectionButton]
+```
+
+
+###call ConfigureTable:
+
+```swift
+let config = ConfigureTable(items: sections) { (tableView, indexPath) in
+            let cell = tableView.tableView.cellForRowAtIndexPath(indexPath)
+            if cell is ButtonCell {
+                cell?.selected = false
+                let dic = tableView.getFormData()
+                print(dic)
+            }
+  }
+```
+
+###Set the configuration to TableViewController:
+```swift
+        let main = TableViewController(config: config)
+```
+
+##License
+
+`TableForm` is licensed under the MIT license.
