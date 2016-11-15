@@ -53,6 +53,13 @@ let config = ConfigureTable(items: sections) { (tableView, indexPath) in
         let main = TableViewController(config: config)
 ```
 
+### Contact
+
+* Sebastian Gazolla Jr
+* [@gazollajr](http://twitter.com/gazollajr)
+* [http://gazapps.com](http://gazapps.com)
+* [http://about.me/gazolla](http://about.me/gazolla)
+
 ##License
 
 `TableForm` is licensed under the MIT license.
