@@ -50,7 +50,7 @@ let config = ConfigureTable(items: sections) { (tableView, indexPath) in
 
 ###Set the configuration to TableViewController:
 ```swift
-        let main = TableViewController(config: config)
+        let main = FormViewController(config: config)
 ```
 
 ### Contact
