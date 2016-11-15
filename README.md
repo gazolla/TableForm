@@ -57,7 +57,6 @@ let config = ConfigureTable(items: sections) { (tableView, indexPath) in
 
 * Sebastian Gazolla Jr
 * [@gazollajr](http://twitter.com/gazollajr)
-* [http://gazapps.com](http://gazapps.com)
 * [http://about.me/gazolla](http://about.me/gazolla)
 
 ##License
