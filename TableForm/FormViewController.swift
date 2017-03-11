@@ -1,63 +1,80 @@
 //
-//  TableViewController.swift
-//  TableForm
+//  FormViewController.swift
+//  Form
 //
-//  Created by Gazolla on 25/07/16.
-//  Copyright © 2016 Gazolla. All rights reserved.
+//  Created by Gazolla on 10/03/17.
+//  Copyright © 2017 Gazolla. All rights reserved.
 //
 
 import UIKit
 
 public struct Field{
     var name:String
+    var title:String
+    var value:AnyObject?
     var cellType:UITableViewCell.Type
     var cellId:String
     
-    init(name:String, cellType: UITableViewCell.Type){
+    init(name:String, title:String, cellType: UITableViewCell.Type){
         self.name = name
+        self.title = title
         self.cellType = cellType
         cellId = "\(cellType.self)\(name)"
     }
 }
 
-public struct ConfigureTable{
+public struct ConfigureForm{
     var items:[[Field]]
     var configureCell:(_ cell:UITableViewCell, _ item:Field)->()
     var selectedRow:(_ form:FormViewController, _ indexPath:IndexPath)->()
 }
 
-class FormViewController: UIViewController, UITableViewDelegate, UITableViewDataSource {
+
+class FormViewController: UIViewController, UITableViewDelegate, UITableViewDataSource  {
     
     var items:[[Field]]
-    var sections:[[UITableViewCell]]
+    var sections:[[FormCell]]
     var selectedRow:(_ form:FormViewController, _ indexPath:IndexPath)->()
     var configureCell:(_ cell:UITableViewCell, _ item:Field)->()
     var buildCellsDone:(()->())?
+    var data:[String:AnyObject]?
     
-    lazy var tableView:UITableView = {
-        let tv = UITableView(frame: self.view.bounds, style: .grouped)
+    
+    lazy var tableView:FormView = {
+        let tv = FormView(frame: self.view.bounds, style: .grouped)
         tv.autoresizingMask  = [.flexibleWidth, .flexibleHeight]
         tv.delegate = self
         tv.dataSource = self
         tv.keyboardDismissMode = .onDrag
+        
+        tv.completion = {
+            if self.data != nil {
+                self.setFormData()
+            }
+        }
+        
         return tv
     }()
     
-    init(config:ConfigureTable){
+    init(config:ConfigureForm){
         self.items = config.items
         self.configureCell = config.configureCell
         self.selectedRow = config.selectedRow
-        self.sections = [[UITableViewCell]]()
+        self.sections = [[FormCell]]()
         super.init(nibName: nil, bundle: nil)
-        self.buildCells()
+    }
+    
+    required init?(coder aDecoder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
     }
     
     func buildCells(){
         for section in self.items{
-            var c = [UITableViewCell]()
+            var c = [FormCell]()
             for it in section {
-                let instance = it.cellType.init(style: .default, reuseIdentifier: it.cellId)
-                instance.textLabel?.text = "\(it.name)"
+                let instance = it.cellType.init(style: .default, reuseIdentifier: it.cellId) as! FormCell
+                instance.name = it.name
+                instance.textLabel?.text = "\(it.title)"
                 c.append(instance)
             }
             self.sections.append(c)
@@ -83,60 +100,34 @@ class FormViewController: UIViewController, UITableViewDelegate, UITableViewData
     }
     
     func getFormData()->[String:AnyObject]{
-        var result = [String:AnyObject]()
+        self.data = [String:AnyObject]()
         var index:IndexPath? = IndexPath(row: 0, section: 0)
         while index != nil {
             let cell = self.tableView.cellForRow(at: index!)
-            if cell is TextCell {
-                let key = cell!.textLabel!.text!
-                let value = (cell as! TextCell).textField.text
-                result[key] = value as AnyObject?
-            } else if cell is NumberCell {
-                let key = cell!.textLabel!.text!
-                let value = (cell as! NumberCell).nf.text
-                result[key] = value as AnyObject?
+            if cell is FormCell {
+                let tuple = (cell as! FormCell).getCellData()
+                self.data![tuple.key] = tuple.value as AnyObject?
             }
             index = self.incrementIndexPath(index!)
         }
-        return result
+        return self.data!
     }
     
-    func setFormData(data:[String:AnyObject]){
-        let f = DateFormatter()
-        f.dateStyle = .medium
-        
-        let nf = NumberFormatter()
-        for (key, value) in data {
-            for cell in tableView.visibleCells  {
-                if cell is TextCell {
-                    if  cell.textLabel!.text == key {
-                        if (cell is DateCell) {
-                            (cell as! DateCell).datePicker.date = value as! Date
-                            (cell as! DateCell).textField.text! = f.string(from: value as! Date)
-                        } else if (cell is IntCell) {
-                            (cell as! IntCell).textField.text! = nf.string(from: value as! NSNumber)!
-                        } else if (cell is LinkCell) {
-                            // (cell as! Link).textField.text! = value as! String
-                        } else if (cell is TextCell) {
-                            (cell as! TextCell).textField.text! = value as! String
-                        }
+    func setFormData(){
+        for (key, value) in self.data! {
+            for cell  in tableView.visibleCells  {
+                if  (cell as! FormCell).name == key {
+                    if cell is FormCell {
+                        (cell as! FormCell).setCellData(key: key, value: value)
                     }
                 }
             }
         }
     }
     
-    required init?(coder aDecoder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
-    
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(true)
-        self.tableView.reloadData()
-    }
-    
     override func viewDidLoad() {
         super.viewDidLoad()
+        self.buildCells()
         self.view.addSubview(self.tableView)
     }
     
@@ -167,9 +158,14 @@ class FormViewController: UIViewController, UITableViewDelegate, UITableViewData
         return 3
     }
     
-    func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
-        if indexPath == tableView.indexPathsForVisibleRows?.last {
-            self.buildCellsDone?()
+    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        let section = self.sections[indexPath.section]
+        let cell = section[indexPath.item]
+        if cell is SliderCell {
+            return 70
+        } else {
+            return 44
         }
     }
+    
 }

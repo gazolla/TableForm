@@ -14,6 +14,7 @@
 		08177D3B1D46A3B000228592 /* TableFormUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 08177D3A1D46A3B000228592 /* TableFormUITests.swift */; };
 		08177D491D46A3BD00228592 /* FormViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 08177D481D46A3BD00228592 /* FormViewController.swift */; };
 		08177D4B1D46DD3A00228592 /* FormCells.swift in Sources */ = {isa = PBXBuildFile; fileRef = 08177D4A1D46DD3A00228592 /* FormCells.swift */; };
+		0882883E1E738F1B00DDA1C6 /* FormView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0882883D1E738F1B00DDA1C6 /* FormView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -47,6 +48,7 @@
 		08177D3C1D46A3B000228592 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		08177D481D46A3BD00228592 /* FormViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FormViewController.swift; sourceTree = "<group>"; };
 		08177D4A1D46DD3A00228592 /* FormCells.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FormCells.swift; sourceTree = "<group>"; };
+		0882883D1E738F1B00DDA1C6 /* FormView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FormView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -101,6 +103,7 @@
 				08177D211D46A3B000228592 /* Assets.xcassets */,
 				08177D231D46A3B000228592 /* LaunchScreen.storyboard */,
 				08177D261D46A3B000228592 /* Info.plist */,
+				0882883D1E738F1B00DDA1C6 /* FormView.swift */,
 				08177D481D46A3BD00228592 /* FormViewController.swift */,
 				08177D4A1D46DD3A00228592 /* FormCells.swift */,
 			);
@@ -259,6 +262,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				0882883E1E738F1B00DDA1C6 /* FormView.swift in Sources */,
 				08177D201D46A3B000228592 /* AppDelegate.swift in Sources */,
 				08177D4B1D46DD3A00228592 /* FormCells.swift in Sources */,
 				08177D491D46A3BD00228592 /* FormViewController.swift in Sources */,

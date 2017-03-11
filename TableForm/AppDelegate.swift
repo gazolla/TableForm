@@ -14,51 +14,55 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     var window: UIWindow?
     
     func createFieldsAndSections()->[[Field]]{
-        let name = Field(name: "name:", cellType: NameCell.self)
-        let address = Field(name: "address:", cellType: TextCell.self)
-        let birth = Field(name: "birthday:", cellType: DateCell.self)
+        let name = Field(name:"name", title:"Nome:", cellType: NameCell.self)
+        let birth = Field(name:"birthday", title:"Nascimento:", cellType: DateCell.self)
+        let address = Field(name:"address", title:"Address:", cellType: TextCell.self)
         let sectionPersonal = [name, address, birth]
-        
-        let company = Field(name: "company:", cellType: NameCell.self)
-        let position = Field(name: "position:", cellType: TextCell.self)
-        let salary = Field(name: "salary:", cellType: NumberCell.self)
+        let company = Field(name:"company", title:"Company:", cellType: TextCell.self)
+        let position = Field(name:"position", title:"Position:", cellType: TextCell.self)
+        let salary = Field(name:"salary", title:"Salary:", cellType: NumberCell.self)
         let sectionProfessional = [company, position, salary]
-        
-        let save = Field(name: "Save", cellType: ButtonCell.self)
+        let slider = Field(name: "test", title:"test:", cellType: SliderCell.self)
+        let sectionSlider = [slider]
+        let save = Field(name: "Save", title:"Save", cellType: ButtonCell.self)
         let sectionButton = [save]
-        
-        return [sectionPersonal, sectionProfessional, sectionButton]
+        return [sectionPersonal, sectionProfessional, sectionSlider, sectionButton]
     }
     
-    func createConfigureTableStruct(formItems:[[Field]])->ConfigureTable{
-        
-        return ConfigureTable(items: formItems, configureCell: { (cell, field) in
-            
-            }) { (form, indexPath) in
-                let cell = form.tableView.cellForRow(at: indexPath as IndexPath)
-                if cell is ButtonCell {
-                    cell?.isSelected = false
-                    let dic = form.getFormData()
-                    print(dic)
-                }
+    func createConfigureTableStruct(formItems:[[Field]])->ConfigureForm{
+        return ConfigureForm(items: formItems, configureCell: { (cell, field) in
+        }) { (form, indexPath) in
+            let cell = form.tableView.cellForRow(at: indexPath as IndexPath)
+            if cell is ButtonCell {
+                cell?.isSelected = false
+                let dic = form.getFormData()
+                print(dic)
+            }
         }
-        
-        
     }
+    
+    func createForm()->UINavigationController {
+        let sections = self.createFieldsAndSections()
+        let config = self.createConfigureTableStruct(formItems: sections)
+        let myForm = FormViewController(config:config)
+        myForm.title = "Form"
+        let f = DateFormatter()
+        f.dateStyle = .medium
+        let data:[String:AnyObject] = ["name":"Sebastian Gazolla Jr" as AnyObject,
+                                       "address":"SQN 315" as AnyObject,
+                                       "birthday":f.string(from: Date()) as AnyObject,
+                                       "company":"Apple" as AnyObject,
+                                       "position":"Software Engineer" as AnyObject,
+                                       "salary":"220,234.00" as AnyObject,
+                                       "Frequencia":50.0 as AnyObject]
+        myForm.data = data
+        return UINavigationController(rootViewController: myForm)
+    }
+
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
         self.window = UIWindow(frame: UIScreen.main.bounds)
-        
-        
-        let sections = self.createFieldsAndSections()
-        
-        let config = self.createConfigureTableStruct(formItems: sections)
-        
-        let myForm = FormViewController(config:config)
-        myForm.title = "Form"
-        
-        let nav = UINavigationController(rootViewController: myForm)
-        self.window!.rootViewController = nav
+        self.window!.rootViewController = createForm()
         self.window!.backgroundColor = UIColor.white
         self.window!.makeKeyAndVisible()
         return true

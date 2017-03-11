@@ -9,9 +9,8 @@
 import UIKit
 import QuartzCore
 
-open class TextCell: UITableViewCell, UITextFieldDelegate {
-    
-    var textField = UITextField()
+open class FormCell:UITableViewCell {
+    var name:String?
     
     override init(style: UITableViewCellStyle, reuseIdentifier: String?) {
         super.init(style: .default, reuseIdentifier: reuseIdentifier)
@@ -28,7 +27,23 @@ open class TextCell: UITableViewCell, UITextFieldDelegate {
         self.setup()
     }
     
-    fileprivate func setup() {
+    func setup() {   }
+    
+    func setCellData(key: String, value: AnyObject){  }
+    
+    func getCellData()-> (key: String, value: AnyObject){
+        let key = ""
+        let value = "" as AnyObject
+        return(key, value)
+    }
+}
+
+
+open class TextCell: FormCell, UITextFieldDelegate {
+    
+    var textField = UITextField()
+    
+    override func setup() {
         
         self.textLabel?.font = UIFont.preferredFont(forTextStyle: UIFontTextStyle.caption1)
         
@@ -52,9 +67,21 @@ open class TextCell: UITableViewCell, UITextFieldDelegate {
         textField.resignFirstResponder()
         return true
     }
+    
+    override func setCellData(key: String, value: AnyObject){
+        self.textField.text! = value as! String
+    }
+    
+    override func getCellData()-> (key: String, value: AnyObject){
+        let key = self.name!
+        let value = self.textField.text as AnyObject
+        return(key, value)
+    }
+    
+    
 }
 
-open class NumberCell: UITableViewCell, UITextFieldDelegate {
+open class NumberCell: FormCell, UITextFieldDelegate {
     
     var nf = UITextField()
     
@@ -69,22 +96,7 @@ open class NumberCell: UITableViewCell, UITextFieldDelegate {
     
     var amountTypedString = ""
     
-    override init(style: UITableViewCellStyle, reuseIdentifier: String?) {
-        super.init(style: .default, reuseIdentifier: reuseIdentifier)
-        self.setup()
-    }
-    
-    required  public init?(coder aDecoder: NSCoder) {
-        super.init(coder: aDecoder)
-        self.setup()
-    }
-    
-    override  open func awakeFromNib() {
-        super.awakeFromNib()
-        self.setup()
-    }
-    
-    fileprivate func setup() {
+    override func setup() {
         
         self.textLabel?.font = UIFont.preferredFont(forTextStyle: UIFontTextStyle.caption1)
         
@@ -93,14 +105,14 @@ open class NumberCell: UITableViewCell, UITextFieldDelegate {
         self.nf.tag = 3
         self.nf.translatesAutoresizingMaskIntoConstraints = false
         self.nf.placeholder = "0.00"
-        //self.nf.font = UIFont.systemFont(ofSize: 35)
+        self.nf.font = UIFont.systemFont(ofSize: 35)
         //self.nf.borderStyle = UITextBorderStyle.roundedRect
         self.nf.autocorrectionType = UITextAutocorrectionType.no
         self.nf.keyboardType = UIKeyboardType.numberPad
         self.nf.returnKeyType = UIReturnKeyType.done
         self.nf.clearButtonMode = UITextFieldViewMode.whileEditing
         self.nf.contentVerticalAlignment = UIControlContentVerticalAlignment.center
-        self.nf.textAlignment = NSTextAlignment.right
+        self.nf.textAlignment = NSTextAlignment.center
         self.addSubview(self.nf)
         
         addConstraintsWithFormat("V:|-3-[v0]-3-|", views:self.nf)
@@ -142,49 +154,38 @@ open class NumberCell: UITableViewCell, UITextFieldDelegate {
         return true
     }
     
+    override func setCellData(key: String, value: AnyObject){
+        self.nf.text! = value as! String
+    }
+    
+    override func getCellData()-> (key: String, value: AnyObject){
+        let key = self.name!
+        let value = self.nf.text as AnyObject
+        return(key, value)
+    }
+    
+    
 }
 
 open class IntCell : TextCell {
     
-    required public override init(style: UITableViewCellStyle, reuseIdentifier: String?) {
-        super.init(style: style, reuseIdentifier: reuseIdentifier)
-        self.setup()
-    }
-    
-    required public init?(coder aDecoder: NSCoder) {
-        super.init(coder: aDecoder)
-        self.setup()
-    }
-    
-    override  open func awakeFromNib() {
-        super.awakeFromNib()
-        self.setup()
-    }
-    
     override func setup() {
         super.setup()
+        textField.textAlignment = .right
+        
         textField.autocorrectionType = .default
         textField.autocapitalizationType = .none
         textField.keyboardType = .numberPad
     }
+    
+    override func setCellData(key: String, value: AnyObject){
+        let nf = NumberFormatter()
+        self.textField.text! = nf.string(from: value as! NSNumber)!
+    }
+    
 }
 
 open class PhoneCell : TextCell {
-    
-    required public override init(style: UITableViewCellStyle, reuseIdentifier: String?) {
-        super.init(style: style, reuseIdentifier: reuseIdentifier)
-        self.setup()
-    }
-    
-    required public init?(coder aDecoder: NSCoder) {
-        super.init(coder: aDecoder)
-        self.setup()
-    }
-    
-    override  open func awakeFromNib() {
-        super.awakeFromNib()
-        self.setup()
-    }
     
     override func setup() {
         super.setup()
@@ -193,21 +194,6 @@ open class PhoneCell : TextCell {
 }
 
 open class NameCell : TextCell {
-    
-    required public override init(style: UITableViewCellStyle, reuseIdentifier: String?) {
-        super.init(style: style, reuseIdentifier: reuseIdentifier)
-        self.setup()
-    }
-    
-    required public init?(coder aDecoder: NSCoder) {
-        super.init(coder: aDecoder)
-        self.setup()
-    }
-    
-    override  open func awakeFromNib() {
-        super.awakeFromNib()
-        self.setup()
-    }
     
     open override func setup() {
         super.setup()
@@ -219,21 +205,6 @@ open class NameCell : TextCell {
 
 open class EmailCell : TextCell {
     
-    required public override init(style: UITableViewCellStyle, reuseIdentifier: String?) {
-        super.init(style: style, reuseIdentifier: reuseIdentifier)
-        self.setup()
-    }
-    
-    required public init?(coder aDecoder: NSCoder) {
-        super.init(coder: aDecoder)
-        self.setup()
-    }
-    
-    override  open func awakeFromNib() {
-        super.awakeFromNib()
-        self.setup()
-    }
-    
     open override func setup() {
         super.setup()
         textField.autocorrectionType = .no
@@ -243,21 +214,6 @@ open class EmailCell : TextCell {
 }
 
 open class PasswordCell : TextCell {
-    
-    required public override init(style: UITableViewCellStyle, reuseIdentifier: String?) {
-        super.init(style: style, reuseIdentifier: reuseIdentifier)
-        self.setup()
-    }
-    
-    required public init?(coder aDecoder: NSCoder) {
-        super.init(coder: aDecoder)
-        self.setup()
-    }
-    
-    override  open func awakeFromNib() {
-        super.awakeFromNib()
-        self.setup()
-    }
     
     open override func setup() {
         super.setup()
@@ -270,21 +226,6 @@ open class PasswordCell : TextCell {
 
 open class DecimalCell : TextCell {
     
-    required public override init(style: UITableViewCellStyle, reuseIdentifier: String?) {
-        super.init(style: style, reuseIdentifier: reuseIdentifier)
-        self.setup()
-    }
-    
-    required public init?(coder aDecoder: NSCoder) {
-        super.init(coder: aDecoder)
-        self.setup()
-    }
-    
-    override  open func awakeFromNib() {
-        super.awakeFromNib()
-        self.setup()
-    }
-    
     open override func setup() {
         super.setup()
         textField.autocorrectionType = .no
@@ -293,21 +234,6 @@ open class DecimalCell : TextCell {
 }
 
 open class URLCell : TextCell {
-    
-    required public override init(style: UITableViewCellStyle, reuseIdentifier: String?) {
-        super.init(style: style, reuseIdentifier: reuseIdentifier)
-        self.setup()
-    }
-    
-    required public init?(coder aDecoder: NSCoder) {
-        super.init(coder: aDecoder)
-        self.setup()
-    }
-    
-    override  open func awakeFromNib() {
-        super.awakeFromNib()
-        self.setup()
-    }
     
     open override func setup() {
         super.setup()
@@ -319,21 +245,6 @@ open class URLCell : TextCell {
 
 open class TwitterCell : TextCell {
     
-    required public override init(style: UITableViewCellStyle, reuseIdentifier: String?) {
-        super.init(style: style, reuseIdentifier: reuseIdentifier)
-        self.setup()
-    }
-    
-    required public init?(coder aDecoder: NSCoder) {
-        super.init(coder: aDecoder)
-        self.setup()
-    }
-    
-    override  open func awakeFromNib() {
-        super.awakeFromNib()
-        self.setup()
-    }
-    
     open override func setup() {
         super.setup()
         textField.autocorrectionType = .no
@@ -343,21 +254,6 @@ open class TwitterCell : TextCell {
 }
 
 open class AccountCell : TextCell {
-    
-    required public override init(style: UITableViewCellStyle, reuseIdentifier: String?) {
-        super.init(style: style, reuseIdentifier: reuseIdentifier)
-        self.setup()
-    }
-    
-    required public init?(coder aDecoder: NSCoder) {
-        super.init(coder: aDecoder)
-        self.setup()
-    }
-    
-    override  open func awakeFromNib() {
-        super.awakeFromNib()
-        self.setup()
-    }
     
     open override func setup() {
         super.setup()
@@ -369,21 +265,6 @@ open class AccountCell : TextCell {
 
 open class ZipCodeCell : TextCell {
     
-    required public override init(style: UITableViewCellStyle, reuseIdentifier: String?) {
-        super.init(style: style, reuseIdentifier: reuseIdentifier)
-        self.setup()
-    }
-    
-    required public init?(coder aDecoder: NSCoder) {
-        super.init(coder: aDecoder)
-        self.setup()
-    }
-    
-    override  open func awakeFromNib() {
-        super.awakeFromNib()
-        self.setup()
-    }
-    
     open override func setup() {
         super.setup()
         textField.autocorrectionType = .no
@@ -394,6 +275,8 @@ open class ZipCodeCell : TextCell {
 
 open class DateCell : TextCell {
     
+    var update:((_ date:Date)->())?
+    
     var datePicker = UIDatePicker()
     var formatter:DateFormatter {
         let f = DateFormatter()
@@ -401,26 +284,10 @@ open class DateCell : TextCell {
         return f
     }
     
-    required public override init(style: UITableViewCellStyle, reuseIdentifier: String?) {
-        super.init(style: style, reuseIdentifier: reuseIdentifier)
-        self.setup()
-    }
-    
-    required public init?(coder aDecoder: NSCoder) {
-        super.init(coder: aDecoder)
-        self.setup()
-    }
-    
-    override  open func awakeFromNib() {
-        super.awakeFromNib()
-        self.setup()
-    }
-    
     override func setup() {
         super.setup()
         
         self.textField.textAlignment = .right
-        self.textField.placeholder = formatter.string(from: Date())
         
         accessoryType = .none
         editingAccessoryType =  .none
@@ -435,10 +302,28 @@ open class DateCell : TextCell {
     
     func datePickerValueChanged(_ sender: UIDatePicker){
         self.textField.text = formatter.string(from: sender.date)
+        // self.update?(sender.date)
     }
+    
+    override func setCellData(key: String, value: AnyObject){
+        let f = DateFormatter()
+        f.dateStyle = .medium
+        if let vl = value as? String {
+            if let dt = f.date(from: vl ){
+                self.datePicker.date = dt
+            }
+            self.textField.text! = vl
+        }
+    }
+    
+    public func textFieldDidEndEditing(_ textField: UITextField) {
+        self.update?(self.datePicker.date)
+    }
+    
+    
 }
 
-open class ButtonCell: UITableViewCell, UITextFieldDelegate {
+open class ButtonCell: FormCell, UITextFieldDelegate {
     
     override init(style: UITableViewCellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
@@ -455,7 +340,7 @@ open class ButtonCell: UITableViewCell, UITextFieldDelegate {
         self.setup()
     }
     
-    fileprivate func setup() {
+    override func setup() {
         textLabel?.textColor = tintColor
         selectionStyle = .default
         accessoryType = .none
@@ -507,6 +392,120 @@ open class LinkCell : UITableViewCell {
     
     
 }
+
+
+open class SliderCell: FormCell {
+    
+    lazy var slider:UISlider = {
+        let s = UISlider()
+        s.minimumValue = 0
+        s.maximumValue = 100
+        s.isContinuous = true
+        s.tintColor = UIColor.green
+        s.addTarget(self, action: #selector(sliderValueDidChange(_:)), for: .valueChanged)
+        s.widthAnchor.constraint(equalToConstant: self.bounds.width*0.9).isActive = true
+        return s
+    }()
+    
+    lazy var titleLabel:UILabel = {
+        let l = self.getLabel()
+        return l
+    }()
+    
+    lazy var minLabel:UILabel = {
+        let l = self.getLabel()
+        return l
+    }()
+    
+    lazy var maxLabel:UILabel = {
+        let l = self.getLabel()
+        return l
+    }()
+    
+    lazy var valueLabel:UILabel = {
+        let l = self.getLabel()
+        l.textColor = UIColor.lightGray
+        l.font =  UIFont.preferredFont(forTextStyle: UIFontTextStyle.subheadline)
+        l.text = "00 %"
+        return l
+    }()
+    
+    lazy var sliderStack:UIStackView = {
+        let s = UIStackView()
+        s.axis = .horizontal
+        s.distribution = .fillProportionally
+        s.alignment = .fill
+        s.spacing = 0
+        s.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        s.addArrangedSubview(UIView())
+        s.addArrangedSubview(self.minLabel)
+        s.addArrangedSubview(UIView())
+        s.addArrangedSubview(self.slider)
+        s.addArrangedSubview(UIView())
+        s.addArrangedSubview(self.maxLabel)
+        s.addArrangedSubview(UIView())
+        return s
+    }()
+    
+    
+    lazy var mainStack:UIStackView = {
+        print("main")
+        let s = UIStackView(frame: self.bounds)
+        s.axis = .vertical
+        s.distribution = .fill
+        s.alignment = .fill
+        s.spacing = 0
+        s.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        s.addArrangedSubview(self.titleLabel)
+        s.addArrangedSubview(self.sliderStack)
+        s.addArrangedSubview(self.valueLabel)
+        return s
+    }()
+    
+    override func setup() {
+        self.textLabel?.textColor = .clear
+        self.addSubview(self.mainStack)
+    }
+    
+    override open func layoutSubviews() {
+        super.layoutSubviews()
+        self.titleLabel.text = self.textLabel?.text
+        self.minLabel.text = " \(String(Int(self.slider.minimumValue))) %    "
+        self.maxLabel.text = " \(String(Int(self.slider.maximumValue))) %"
+    }
+    
+    
+    func sliderValueDidChange(_ sender:UISlider!){
+        self.valueLabel.text = "\(Int(sender.value)) % "
+    }
+    
+    
+    override func setCellData(key: String, value: AnyObject){
+        if let v = value.floatValue {
+            self.slider.value = v
+            self.valueLabel.text = "\(Int(v)) % "
+        }
+    }
+    
+    override func getCellData()-> (key: String, value: AnyObject){
+        let key = self.name!
+        let value = Int(self.slider.value) as AnyObject
+        return(key, value)
+    }
+    
+    func getLabel()->UILabel{
+        let l = UILabel()
+        l.textAlignment = .center
+        l.font =  UIFont.preferredFont(forTextStyle: UIFontTextStyle.caption1)
+        l.textColor = UIColor.black
+        l.backgroundColor = UIColor.clear
+        return l
+    }
+    
+    
+    
+}
+
 
 extension UIView{
     func addConstraintsWithFormat(_ format:String, views:UIView...){
