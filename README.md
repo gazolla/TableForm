@@ -10,7 +10,7 @@ Programmatically use of TableView to create data entry forms for iOS
 
 ##Installing
 
-In order to install, you'll need to copy the `TableViewController` and `Cells` files into your Xcode project. 
+In order to install, you'll need to copy the `FormViewController` and `FormCells` files into your Xcode project. 
 
 ##Usage
 
@@ -50,8 +50,14 @@ let config = ConfigureTable(items: sections) { (tableView, indexPath) in
 
 ###Set the configuration to TableViewController:
 ```swift
-        let main = TableViewController(config: config)
+        let main = FormViewController(config: config)
 ```
+
+### Contact
+
+* Sebastian Gazolla Jr
+* [@gazollajr](http://twitter.com/gazollajr)
+* [http://about.me/gazolla](http://about.me/gazolla)
 
 ##License
 
