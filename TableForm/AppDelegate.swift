@@ -24,9 +24,13 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         let sectionProfessional = [company, position, salary]
         let slider = Field(name: "test", title:"test:", cellType: SliderCell.self)
         let sectionSlider = [slider]
+        let swap = Field(name: "cool", title:"Is it cool?", cellType: SwitchCell.self)
+        let sectionSwap = [swap]
+        let stepper = Field(name: "count", title:"Count:", cellType: StepperCell.self)
+        let sectionStepper = [stepper]
         let save = Field(name: "Save", title:"Save", cellType: ButtonCell.self)
         let sectionButton = [save]
-        return [sectionPersonal, sectionProfessional, sectionSlider, sectionButton]
+        return [sectionPersonal, sectionProfessional, sectionSlider, sectionSwap, sectionStepper, sectionButton]
     }
     
     func createConfigureTableStruct(formItems:[[Field]])->ConfigureForm{
@@ -53,7 +57,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                                        "birthday":f.string(from: Date()) as AnyObject,
                                        "company":"Apple" as AnyObject,
                                        "position":"Software Engineer" as AnyObject,
-                                       "salary":"220,234.00" as AnyObject,
+                                       "salary":"200,000.00" as AnyObject,
+                                       "count":0.0 as AnyObject,
                                        "Frequencia":50.0 as AnyObject]
         myForm.data = data
         return UINavigationController(rootViewController: myForm)

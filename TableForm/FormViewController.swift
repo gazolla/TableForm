@@ -129,6 +129,11 @@ class FormViewController: UIViewController, UITableViewDelegate, UITableViewData
         super.viewDidLoad()
         self.buildCells()
         self.view.addSubview(self.tableView)
+        NotificationCenter.default.addObserver(self, selector: #selector(self.keyboardWillHide(_:)), name: .UIKeyboardWillHide , object: nil)
+    }
+    
+    func keyboardWillHide(_ notification: NSNotification) {
+        _ = self.getFormData()
     }
     
     func numberOfSections(in tableView: UITableView) -> Int {

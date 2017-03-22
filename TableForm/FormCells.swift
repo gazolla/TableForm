@@ -11,7 +11,13 @@ import QuartzCore
 
 open class FormCell:UITableViewCell {
     var name:String?
-    
+
+    lazy var space:UIView = {
+        let v = UIView()
+        v.widthAnchor.constraint(equalToConstant: self.bounds.width*0.001).isActive = true
+        return v
+    }()
+
     override init(style: UITableViewCellStyle, reuseIdentifier: String?) {
         super.init(style: .default, reuseIdentifier: reuseIdentifier)
         self.setup()
@@ -155,7 +161,12 @@ open class NumberCell: FormCell, UITextFieldDelegate {
     }
     
     override func setCellData(key: String, value: AnyObject){
-        self.nf.text! = value as! String
+        let strValue = value as! String
+        self.nf.text! = strValue
+        let filter   = NSCharacterSet(charactersIn:"0123456789.")
+        let filteredValue = strValue.components(separatedBy:filter.inverted).joined(separator: "")
+
+         amountTypedString = filteredValue
     }
     
     override func getCellData()-> (key: String, value: AnyObject){
@@ -501,11 +512,102 @@ open class SliderCell: FormCell {
         l.backgroundColor = UIColor.clear
         return l
     }
-    
-    
-    
 }
 
+open class SwitchCell:FormCell {
+    
+    lazy var switcher:UISwitch = {
+        let s = UISwitch()
+        s.addTarget(self, action: #selector(switchDidChange(_:)), for: .valueChanged)
+        return s
+    }()
+    
+    func switchDidChange(_ sender:UISwitch!){
+        
+    }
+    
+    lazy var switchStack:UIStackView = {
+         let s = UIStackView(frame: self.bounds)
+        s.axis = .horizontal
+        s.distribution = .fill
+        s.alignment = .center
+        s.spacing = 5
+        s.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        s.addArrangedSubview(UIView())
+        s.addArrangedSubview(self.switcher)
+        s.addArrangedSubview(self.space)
+        return s
+    }()
+
+    
+    override func setup() {
+        self.textLabel?.font = UIFont.preferredFont(forTextStyle: UIFontTextStyle.caption1)
+        self.addSubview(self.switchStack)
+    }
+    
+    override func setCellData(key: String, value: AnyObject){
+            let boolValue = value as! Bool
+            self.switcher.isOn = boolValue
+    }
+    
+    override func getCellData()-> (key: String, value: AnyObject){
+        let key = self.name!
+        let value = self.switcher.isOn as AnyObject
+        return(key, value)
+    }
+}
+
+open class StepperCell:FormCell {
+    
+    lazy var stepper:UIStepper = {
+        let s = UIStepper()
+        s.addTarget(self, action: #selector(stepperDidChange(_:)), for: .valueChanged)
+        return s
+    }()
+    
+    lazy var valueLabel:UILabel = {
+        let l = UILabel()
+        l.textAlignment = .center
+        l.textColor = UIColor.black
+        l.backgroundColor = UIColor.clear
+        return l
+    }()
+    
+    func stepperDidChange(_ sender:UIStepper!){
+       self.valueLabel.text = "\(Int(sender.value))"
+    }
+    
+    lazy var switchStack:UIStackView = {
+        let s = UIStackView(frame: self.bounds)
+        s.axis = .horizontal
+        s.distribution = .fill
+        s.alignment = .center
+        s.spacing = 5
+        s.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        s.addArrangedSubview(UIView())
+        s.addArrangedSubview(self.valueLabel)
+        s.addArrangedSubview(self.stepper)
+        s.addArrangedSubview(self.space)
+        return s
+    }()
+    
+    override func setup() {
+        self.textLabel?.font = UIFont.preferredFont(forTextStyle: UIFontTextStyle.caption1)
+        self.addSubview(self.switchStack)
+    }
+    
+    override func setCellData(key: String, value: AnyObject){
+        let dblValue = value as! Double
+        self.valueLabel.text = "\(Int(dblValue))"
+        self.stepper.value = dblValue
+    }
+    
+    override func getCellData()-> (key: String, value: AnyObject){
+        let key = self.name!
+        let value = self.stepper.value as AnyObject
+        return(key, value)
+    }
+}
 
 extension UIView{
     func addConstraintsWithFormat(_ format:String, views:UIView...){
