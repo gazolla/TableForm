@@ -17,9 +17,9 @@ In order to install, you'll need to copy the `FormViewController` and `FormCells
 ###create Fields:
 
 ```swift
-        let name = Field(name: "name", cellType: NameCell.self)
-        let address = Field(name: "address", cellType: TextCell.self)
-        let birth = Field(name: "birthday", cellType: DateCell.self)
+        let name = Field(name:"name", title:"Nome:", cellType: NameCell.self)
+        let birth = Field(name:"birthday", title:"Nascimento:", cellType: DateCell.self)
+        let address = Field(name:"address", title:"Address:", cellType: TextCell.self)
 ```
 
 ###add Fields to Section:
@@ -38,7 +38,7 @@ In order to install, you'll need to copy the `FormViewController` and `FormCells
 ###call ConfigureTable:
 
 ```swift
-let config = ConfigureTable(items: sections) { (tableView, indexPath) in
+let config = ConfigureForm(items: sections) { (tableView, indexPath) in
             let cell = tableView.tableView.cellForRowAtIndexPath(indexPath)
             if cell is ButtonCell {
                 cell?.selected = false
