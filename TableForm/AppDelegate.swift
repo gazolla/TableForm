@@ -55,7 +55,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         let data:[String:AnyObject] = ["name":"Sebastian Gazolla Jr" as AnyObject,
                                        "address":"SQN 315" as AnyObject,
                                        "birthday":f.string(from: Date()) as AnyObject,
-                                       "company":"Apple" as AnyObject,
+                                       "company":"Pineapple Computers" as AnyObject,
                                        "position":"Software Engineer" as AnyObject,
                                        "salary":"200,000.00" as AnyObject,
                                        "count":0.0 as AnyObject,
