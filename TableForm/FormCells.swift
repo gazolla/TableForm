@@ -2,7 +2,7 @@
 //  TextCell.swift
 //  TableForm
 //
-//  Created by Gazolla on 25/07/16.
+//  Created by Gazolla on 26/08/17.
 //  Copyright © 2016 Gazolla. All rights reserved.
 //
 
@@ -11,13 +11,13 @@ import QuartzCore
 
 open class FormCell:UITableViewCell {
     var name:String?
-
+    
     lazy var space:UIView = {
         let v = UIView()
         v.widthAnchor.constraint(equalToConstant: self.bounds.width*0.001).isActive = true
         return v
     }()
-
+    
     override init(style: UITableViewCellStyle, reuseIdentifier: String?) {
         super.init(style: .default, reuseIdentifier: reuseIdentifier)
         self.setup()
@@ -44,6 +44,63 @@ open class FormCell:UITableViewCell {
     }
 }
 
+open class TextViewCell: FormCell, UITextViewDelegate {
+    
+    var textView = UITextView()
+    
+    override func setup() {
+        
+        self.textLabel?.font = UIFont(name: "AlNile", size: 14)!
+        self.textLabel?.textColor = UIColor.black
+        
+        self.contentView.viewWithTag(3)?.removeFromSuperview()
+        textView.autocorrectionType = .no
+        textView.autocapitalizationType = .none
+        self.textView.delegate = self
+        self.textView.tag = 3
+        self.textView.translatesAutoresizingMaskIntoConstraints = false
+        self.addSubview(self.textView)
+        
+        addConstraintsWithFormat("V:|-3-[v0]-3-|", views:self.textView)
+        addConstraintsWithFormat("H:|-100-[v0]-5-|", views:self.textView)
+        
+        self.textView.textAlignment = .left
+    }
+    
+    override  open func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+        self.textView.becomeFirstResponder()
+    }
+    
+    public func textViewDidEndEditing(_ textView: UITextView) {
+        textView.resignFirstResponder()
+    }
+    
+    override func setCellData(key: String, value: AnyObject){
+        self.textView.text! = value as! String
+    }
+    
+    override func getCellData()-> (key: String, value: AnyObject){
+        let key = self.name!
+        let value = self.textView.text as AnyObject
+        return(key, value)
+    }
+    
+    public func textViewShouldBeginEditing(_ textView: UITextView) -> Bool {
+        var view = self.superview
+        while (view != nil && view!.isKind(of: UITableView.self) == false) {
+            view = view!.superview
+        }
+        let tableView =  view as? UITableView
+        
+        let txtFieldPosition =  textView.convert(textView.bounds.origin, to: tableView)
+        let indexPath =  tableView?.indexPathForRow(at: txtFieldPosition)
+        if indexPath != nil {
+            tableView?.scrollToRow(at: indexPath!, at: .top, animated: true)
+        }
+        return true
+    }
+}
+
 
 open class TextCell: FormCell, UITextFieldDelegate {
     
@@ -51,9 +108,12 @@ open class TextCell: FormCell, UITextFieldDelegate {
     
     override func setup() {
         
-        self.textLabel?.font = UIFont.preferredFont(forTextStyle: UIFontTextStyle.caption1)
+        self.textLabel?.font = UIFont(name: "AlNile", size: 14)!
+        self.textLabel?.textColor = UIColor.black
         
         self.contentView.viewWithTag(3)?.removeFromSuperview()
+        textField.autocorrectionType = .no
+        textField.autocapitalizationType = .none
         self.textField.delegate = self
         self.textField.tag = 3
         self.textField.translatesAutoresizingMaskIntoConstraints = false
@@ -82,6 +142,21 @@ open class TextCell: FormCell, UITextFieldDelegate {
         let key = self.name!
         let value = self.textField.text as AnyObject
         return(key, value)
+    }
+    
+    public func textFieldShouldBeginEditing(_ textField: UITextField) -> Bool {
+        var view = self.superview
+        while (view != nil && view!.isKind(of: UITableView.self) == false) {
+            view = view!.superview
+        }
+        let tableView =  view as? UITableView
+        
+        let txtFieldPosition =  textField.convert(textField.bounds.origin, to: tableView)
+        let indexPath =  tableView?.indexPathForRow(at: txtFieldPosition)
+        if indexPath != nil {
+            tableView?.scrollToRow(at: indexPath!, at: .top, animated: true)
+        }
+        return true
     }
     
     
@@ -165,8 +240,8 @@ open class NumberCell: FormCell, UITextFieldDelegate {
         self.nf.text! = strValue
         let filter   = NSCharacterSet(charactersIn:"0123456789.")
         let filteredValue = strValue.components(separatedBy:filter.inverted).joined(separator: "")
-
-         amountTypedString = filteredValue
+        
+        amountTypedString = filteredValue
     }
     
     override func getCellData()-> (key: String, value: AnyObject){
@@ -361,7 +436,7 @@ open class ButtonCell: FormCell, UITextFieldDelegate {
 }
 
 
-open class LinkCell : UITableViewCell {
+open class LinkCell : TextCell {
     
     var label = UILabel()
     
@@ -380,22 +455,9 @@ open class LinkCell : UITableViewCell {
         self.setup()
     }
     
-    fileprivate func setup() {
-        self.textLabel?.font = UIFont.preferredFont(forTextStyle: UIFontTextStyle.caption1)
-        
-        self.contentView.viewWithTag(3)?.removeFromSuperview()
-        
-        // self.label.textColor = UIColor.darkOrange()
-        self.label.font = UIFont.preferredFont(forTextStyle: UIFontTextStyle.caption1)
-        
-        self.contentView.viewWithTag(3)?.removeFromSuperview()
-        self.label.tag = 3
-        self.label.translatesAutoresizingMaskIntoConstraints = false
-        self.addSubview(self.label)
-        
-        addConstraintsWithFormat("V:|-3-[v0]-3-|", views:self.label)
-        addConstraintsWithFormat("H:|-100-[v0]-35-|", views:self.label)
-        
+    override func setup() {
+        super.setup()
+        self.textField.isEnabled = false
         self.label.textAlignment = .right
         accessoryType = UITableViewCellAccessoryType.disclosureIndicator
         editingAccessoryType =  .none
@@ -527,7 +589,7 @@ open class SwitchCell:FormCell {
     }
     
     lazy var switchStack:UIStackView = {
-         let s = UIStackView(frame: self.bounds)
+        let s = UIStackView(frame: self.bounds)
         s.axis = .horizontal
         s.distribution = .fill
         s.alignment = .center
@@ -538,7 +600,7 @@ open class SwitchCell:FormCell {
         s.addArrangedSubview(self.space)
         return s
     }()
-
+    
     
     override func setup() {
         self.textLabel?.font = UIFont.preferredFont(forTextStyle: UIFontTextStyle.caption1)
@@ -546,8 +608,8 @@ open class SwitchCell:FormCell {
     }
     
     override func setCellData(key: String, value: AnyObject){
-            let boolValue = value as! Bool
-            self.switcher.isOn = boolValue
+        let boolValue = value as! Bool
+        self.switcher.isOn = boolValue
     }
     
     override func getCellData()-> (key: String, value: AnyObject){
@@ -574,7 +636,7 @@ open class StepperCell:FormCell {
     }()
     
     func stepperDidChange(_ sender:UIStepper!){
-       self.valueLabel.text = "\(Int(sender.value))"
+        self.valueLabel.text = "\(Int(sender.value))"
     }
     
     lazy var switchStack:UIStackView = {
@@ -597,9 +659,10 @@ open class StepperCell:FormCell {
     }
     
     override func setCellData(key: String, value: AnyObject){
-        let dblValue = value as! Double
-        self.valueLabel.text = "\(Int(dblValue))"
-        self.stepper.value = dblValue
+        if let dblValue = value.int64Value {
+            self.valueLabel.text = "\(Int(dblValue))"
+            self.stepper.value = Double(dblValue)
+        }
     }
     
     override func getCellData()-> (key: String, value: AnyObject){
@@ -619,3 +682,4 @@ extension UIView{
         addConstraints(NSLayoutConstraint.constraints(withVisualFormat: format, options: .alignAllLastBaseline, metrics: nil, views: viewsDictionary))
     }
 }
+

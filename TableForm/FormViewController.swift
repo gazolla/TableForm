@@ -129,11 +129,7 @@ class FormViewController: UIViewController, UITableViewDelegate, UITableViewData
         super.viewDidLoad()
         self.buildCells()
         self.view.addSubview(self.tableView)
-        NotificationCenter.default.addObserver(self, selector: #selector(self.keyboardWillHide(_:)), name: .UIKeyboardWillHide , object: nil)
-    }
-    
-    func keyboardWillHide(_ notification: NSNotification) {
-        _ = self.getFormData()
+        self.registerObservers()
     }
     
     func numberOfSections(in tableView: UITableView) -> Int {
@@ -168,9 +164,32 @@ class FormViewController: UIViewController, UITableViewDelegate, UITableViewData
         let cell = section[indexPath.item]
         if cell is SliderCell {
             return 70
+        } else if cell is TextViewCell {
+            return 140
         } else {
             return 44
         }
     }
     
+    func registerObservers() {
+        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow(_:)), name: NSNotification.Name.UIKeyboardWillShow, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide(_:)), name: NSNotification.Name.UIKeyboardWillHide, object: nil)
+    }
+    
+    func unregisterObservers() {
+        NotificationCenter.default.removeObserver(self, name: NSNotification.Name.UIKeyboardWillShow, object: nil)
+        NotificationCenter.default.removeObserver(self, name: NSNotification.Name.UIKeyboardWillHide, object: nil)
+    }
+    
+    func keyboardWillShow(_ sender: NSNotification) {
+        let info = sender.userInfo!
+        let keyboardSize = (info[UIKeyboardFrameEndUserInfoKey] as! NSValue).cgRectValue.height
+        
+        tableView.contentInset.bottom = keyboardSize
+    }
+    
+    func keyboardWillHide(_ sender: NSNotification) {
+        tableView.contentInset.bottom = 0
+    }
+
 }
