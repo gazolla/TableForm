@@ -107,6 +107,7 @@ class FormViewController: UIViewController, UITableViewDelegate, UITableViewData
             if cell is FormCell {
                 let tuple = (cell as! FormCell).getCellData()
                 self.data![tuple.key] = tuple.value as AnyObject?
+                print(tuple.value)
             }
             index = self.incrementIndexPath(index!)
         }
@@ -148,6 +149,7 @@ class FormViewController: UIViewController, UITableViewDelegate, UITableViewData
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        _ = getFormData()
         selectedRow(self, indexPath)
     }
     
@@ -182,6 +184,7 @@ class FormViewController: UIViewController, UITableViewDelegate, UITableViewData
     }
     
     func keyboardWillShow(_ sender: NSNotification) {
+        _ = self.getFormData()
         let info = sender.userInfo!
         let keyboardSize = (info[UIKeyboardFrameEndUserInfoKey] as! NSValue).cgRectValue.height
         
@@ -189,6 +192,7 @@ class FormViewController: UIViewController, UITableViewDelegate, UITableViewData
     }
     
     func keyboardWillHide(_ sender: NSNotification) {
+        _ = self.getFormData()
         tableView.contentInset.bottom = 0
     }
 

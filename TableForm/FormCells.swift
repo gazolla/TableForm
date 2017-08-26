@@ -141,6 +141,8 @@ open class TextCell: FormCell, UITextFieldDelegate {
     override func getCellData()-> (key: String, value: AnyObject){
         let key = self.name!
         let value = self.textField.text as AnyObject
+        print("cell: \(value)")
+        
         return(key, value)
     }
     
