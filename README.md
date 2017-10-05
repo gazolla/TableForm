@@ -10,7 +10,7 @@ Programmatically use of TableView to create data entry forms for iOS
 
 ## Installing
 
-In order to install, you'll need to copy the `FormViewController` and `FormCells` files into your Xcode project. 
+In order to install, you'll need to copy the `FormViewController`, `FormView` and `FormCells` files into your Xcode project. 
 
 ## Usage
 
