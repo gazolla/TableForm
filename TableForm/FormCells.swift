@@ -2,7 +2,7 @@
 //  TextCell.swift
 //  TableForm
 //
-//  Created by Gazolla on 26/08/17.
+//  Created by Gazolla on 05/10/17.
 //  Copyright © 2016 Gazolla. All rights reserved.
 //
 
@@ -33,7 +33,10 @@ open class FormCell:UITableViewCell {
         self.setup()
     }
     
-    func setup() {   }
+    func setup() {
+        self.textLabel?.font = UIFont.preferredFont(forTextStyle: UIFontTextStyle.body)
+        self.textLabel?.textColor = .black
+    }
     
     func setCellData(key: String, value: AnyObject){  }
     
@@ -42,6 +45,19 @@ open class FormCell:UITableViewCell {
         let value = "" as AnyObject
         return(key, value)
     }
+    
+    open override func layoutSubviews() {
+        super.layoutSubviews()
+        if self.tag == 999 { //botton cell
+            layer.shadowColor = UIColor.lightGray.cgColor
+            layer.shadowOffset = CGSize(width: 0, height: 2.0)
+            layer.shadowRadius = 2.0
+            layer.shadowOpacity = 1.0
+            layer.masksToBounds = false
+            layer.shadowPath = UIBezierPath(roundedRect: bounds, cornerRadius: contentView.layer.cornerRadius).cgPath
+        }
+    }
+
 }
 
 open class TextViewCell: FormCell, UITextViewDelegate {
@@ -49,9 +65,7 @@ open class TextViewCell: FormCell, UITextViewDelegate {
     var textView = UITextView()
     
     override func setup() {
-        
-        self.textLabel?.font = UIFont(name: "AlNile", size: 14)!
-        self.textLabel?.textColor = UIColor.black
+        super.setup()
         
         self.contentView.viewWithTag(3)?.removeFromSuperview()
         textView.autocorrectionType = .no
@@ -101,28 +115,62 @@ open class TextViewCell: FormCell, UITextViewDelegate {
     }
 }
 
+open class ImageCell: FormCell, UITextViewDelegate {
+    
+    var imgView = UIImageView()
+    var fileName:String = ""
+    
+    override func setup() {
+        super.setup()
+        self.contentView.viewWithTag(3)?.removeFromSuperview()
+        imgView.backgroundColor = .white
+        imgView.contentMode = .scaleAspectFit
+        imgView.translatesAutoresizingMaskIntoConstraints = false
+        self.addSubview(self.imgView)
+        
+        addConstraintsWithFormat("V:|-3-[v0]-3-|", views:self.imgView)
+        addConstraintsWithFormat("H:|-100-[v0]-5-|", views:self.imgView)
+    }
+    
+    
+    override func setCellData(key: String, value: AnyObject){
+        fileName = value as! String
+        imgView.image = UIImage(named: fileName)
+    }
+    
+    override func getCellData()-> (key: String, value: AnyObject){
+        let key = self.name!
+        let value = fileName as AnyObject
+        return(key, value)
+    }
+    
+}
 
 open class TextCell: FormCell, UITextFieldDelegate {
     
-    var textField = UITextField()
+    var textField:UITextField = {
+        let tf = UITextField()
+        tf.font = UIFont.preferredFont(forTextStyle: UIFontTextStyle.body)
+        tf.autocorrectionType = .no
+        tf.autocapitalizationType = .none
+        tf.tag = 3
+        tf.translatesAutoresizingMaskIntoConstraints = false
+        tf.textAlignment = .left
+        tf.contentVerticalAlignment = .center
+        return tf
+    }()
     
     override func setup() {
+        super.setup()
+        contentView.viewWithTag(3)?.removeFromSuperview()
+        textField.delegate = self
+        addSubview(textField)
         
-        self.textLabel?.font = UIFont(name: "AlNile", size: 14)!
-        self.textLabel?.textColor = UIColor.black
+        textField.centerYAnchor.constraint(equalTo: self.centerYAnchor).isActive = true
+        textField.rightAnchor.constraint(equalTo: self.rightAnchor, constant:-5).isActive = true
+        textField.leftAnchor.constraint(equalTo: self.leftAnchor, constant:115).isActive = true
+        textField.heightAnchor.constraint(equalTo: self.heightAnchor).isActive = true
         
-        self.contentView.viewWithTag(3)?.removeFromSuperview()
-        textField.autocorrectionType = .no
-        textField.autocapitalizationType = .none
-        self.textField.delegate = self
-        self.textField.tag = 3
-        self.textField.translatesAutoresizingMaskIntoConstraints = false
-        self.addSubview(self.textField)
-        
-        addConstraintsWithFormat("V:|-3-[v0]-3-|", views:self.textField)
-        addConstraintsWithFormat("H:|-100-[v0]-5-|", views:self.textField)
-        
-        self.textField.textAlignment = .left
     }
     
     override  open func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
@@ -135,7 +183,9 @@ open class TextCell: FormCell, UITextFieldDelegate {
     }
     
     override func setCellData(key: String, value: AnyObject){
-        self.textField.text! = value as! String
+        if let strValue = value as? String {
+            self.textField.text! = strValue
+        }
     }
     
     override func getCellData()-> (key: String, value: AnyObject){
@@ -166,7 +216,21 @@ open class TextCell: FormCell, UITextFieldDelegate {
 
 open class NumberCell: FormCell, UITextFieldDelegate {
     
-    var nf = UITextField()
+    lazy var numberFormatted:UITextField = {
+        let nf = UITextField()
+        nf.delegate = self
+        nf.tag = 3
+        nf.translatesAutoresizingMaskIntoConstraints = false
+        nf.placeholder = "0.00"
+        nf.font = UIFont.preferredFont(forTextStyle: UIFontTextStyle.title1)
+        nf.autocorrectionType = UITextAutocorrectionType.no
+        nf.keyboardType = UIKeyboardType.numberPad
+        nf.returnKeyType = UIReturnKeyType.done
+        nf.clearButtonMode = UITextFieldViewMode.whileEditing
+        nf.contentVerticalAlignment = UIControlContentVerticalAlignment.center
+        nf.textAlignment = NSTextAlignment.center
+        return nf
+    }()
     
     let formatter: NumberFormatter = {
         let formatter = NumberFormatter()
@@ -180,31 +244,17 @@ open class NumberCell: FormCell, UITextFieldDelegate {
     var amountTypedString = ""
     
     override func setup() {
+        super.setup()
+        self.addSubview(numberFormatted)
         
-        self.textLabel?.font = UIFont.preferredFont(forTextStyle: UIFontTextStyle.caption1)
-        
-        self.contentView.viewWithTag(3)?.removeFromSuperview()
-        self.nf.delegate = self
-        self.nf.tag = 3
-        self.nf.translatesAutoresizingMaskIntoConstraints = false
-        self.nf.placeholder = "0.00"
-        self.nf.font = UIFont.systemFont(ofSize: 35)
-        //self.nf.borderStyle = UITextBorderStyle.roundedRect
-        self.nf.autocorrectionType = UITextAutocorrectionType.no
-        self.nf.keyboardType = UIKeyboardType.numberPad
-        self.nf.returnKeyType = UIReturnKeyType.done
-        self.nf.clearButtonMode = UITextFieldViewMode.whileEditing
-        self.nf.contentVerticalAlignment = UIControlContentVerticalAlignment.center
-        self.nf.textAlignment = NSTextAlignment.center
-        self.addSubview(self.nf)
-        
-        addConstraintsWithFormat("V:|-3-[v0]-3-|", views:self.nf)
-        addConstraintsWithFormat("H:|-100-[v0]-5-|", views:self.nf)
-        
+        numberFormatted.centerYAnchor.constraint(equalTo: self.centerYAnchor).isActive = true
+        numberFormatted.rightAnchor.constraint(equalTo: self.rightAnchor, constant:-5).isActive = true
+        numberFormatted.leftAnchor.constraint(equalTo: self.leftAnchor, constant:115).isActive = true
+        numberFormatted.heightAnchor.constraint(equalTo: self.heightAnchor).isActive = true
     }
-    
+
     override  open func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
-        self.nf.becomeFirstResponder()
+        numberFormatted.becomeFirstResponder()
     }
     
     open func textFieldShouldReturn(_ textField: UITextField) -> Bool {
@@ -213,19 +263,24 @@ open class NumberCell: FormCell, UITextFieldDelegate {
     }
     
     public func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
-        if string.characters.count > 0 {
+        print("amountTypedString:\(amountTypedString)")
+        if string.count > 0 {
+            print(string)
             amountTypedString += string
+            print(amountTypedString)
             let decNumber = NSDecimalNumber(value: Float(amountTypedString)! as Float).multiplying(by: 0.01)
+            print(decNumber)
             let newString = formatter.string(from: decNumber)!
-            self.nf.text = newString
+            print(newString)
+            numberFormatted.text = newString
         } else {
-            amountTypedString = String(amountTypedString.characters.dropLast())
-            if amountTypedString.characters.count > 0 {
+            amountTypedString = String(amountTypedString.dropLast())
+            if amountTypedString.count > 0 {
                 let decNumber = NSDecimalNumber(value: Float(amountTypedString)! as Float).multiplying(by: 0.01)
                 let newString = formatter.string(from: decNumber)!
-                self.nf.text = newString
+                numberFormatted.text = newString
             } else {
-                self.nf.text = "0.00"
+                numberFormatted.text = "0.00"
             }
             
         }
@@ -238,17 +293,28 @@ open class NumberCell: FormCell, UITextFieldDelegate {
     }
     
     override func setCellData(key: String, value: AnyObject){
-        let strValue = value as! String
-        self.nf.text! = strValue
-        let filter   = NSCharacterSet(charactersIn:"0123456789.")
-        let filteredValue = strValue.components(separatedBy:filter.inverted).joined(separator: "")
-        
-        amountTypedString = filteredValue
+        var strValue = ""
+        if value is String{
+            strValue = value as! String
+        } else if value is Double {
+            strValue = String(format: "%\(0.2)f", (value as! Double))
+            // strValue = "\(value)"
+        }
+        numberFormatted.text! = strValue
+        let charsNotToBeTrimmed = (0...9).map{String($0)}
+        for i in strValue{
+            if !charsNotToBeTrimmed.contains(String(i)){
+                strValue = strValue.replacingOccurrences(of: String(i), with: "")
+            }
+        }
+        print("filtered: \(strValue)")
+        amountTypedString = strValue
+        print("amountTypedString:\(amountTypedString)")
     }
     
     override func getCellData()-> (key: String, value: AnyObject){
         let key = self.name!
-        let value = self.nf.text as AnyObject
+        let value = numberFormatted.text as AnyObject
         return(key, value)
     }
     
@@ -260,7 +326,6 @@ open class IntCell : TextCell {
     override func setup() {
         super.setup()
         textField.textAlignment = .right
-        
         textField.autocorrectionType = .default
         textField.autocapitalizationType = .none
         textField.keyboardType = .numberPad
@@ -388,27 +453,23 @@ open class DateCell : TextCell {
         datePicker.removeTarget(self, action: nil, for: .allEvents)
     }
     
-    func datePickerValueChanged(_ sender: UIDatePicker){
+    @objc func datePickerValueChanged(_ sender: UIDatePicker){
         self.textField.text = formatter.string(from: sender.date)
         // self.update?(sender.date)
     }
     
     override func setCellData(key: String, value: AnyObject){
-        let f = DateFormatter()
-        f.dateStyle = .medium
-        if let vl = value as? String {
-            if let dt = f.date(from: vl ){
-                self.datePicker.date = dt
-            }
-            self.textField.text! = vl
+        if let dateValue = value as? Date {
+            self.datePicker.date = dateValue
+            self.textField.text! = self.formatter.string(from: dateValue)
         }
     }
     
-    public func textFieldDidEndEditing(_ textField: UITextField) {
-        self.update?(self.datePicker.date)
+    override func getCellData()-> (key: String, value: AnyObject){
+        let key = self.name!
+        let value = self.textField.text as AnyObject
+        return(key, value)
     }
-    
-    
 }
 
 open class ButtonCell: FormCell, UITextFieldDelegate {
@@ -434,11 +495,12 @@ open class ButtonCell: FormCell, UITextFieldDelegate {
         accessoryType = .none
         editingAccessoryType = accessoryType
         textLabel?.textAlignment = .center
+        textLabel?.font = UIFont.preferredFont(forTextStyle: UIFontTextStyle.title1)
     }
 }
 
 
-open class LinkCell : TextCell {
+open class LinkCell : FormCell {
     
     var label = UILabel()
     
@@ -459,7 +521,6 @@ open class LinkCell : TextCell {
     
     override func setup() {
         super.setup()
-        self.textField.isEnabled = false
         self.label.textAlignment = .right
         accessoryType = UITableViewCellAccessoryType.disclosureIndicator
         editingAccessoryType =  .none
@@ -550,7 +611,7 @@ open class SliderCell: FormCell {
     }
     
     
-    func sliderValueDidChange(_ sender:UISlider!){
+    @objc func sliderValueDidChange(_ sender:UISlider!){
         self.valueLabel.text = "\(Int(sender.value)) % "
     }
     
@@ -586,7 +647,7 @@ open class SwitchCell:FormCell {
         return s
     }()
     
-    func switchDidChange(_ sender:UISwitch!){
+    @objc func switchDidChange(_ sender:UISwitch!){
         
     }
     
@@ -637,7 +698,7 @@ open class StepperCell:FormCell {
         return l
     }()
     
-    func stepperDidChange(_ sender:UIStepper!){
+    @objc func stepperDidChange(_ sender:UIStepper!){
         self.valueLabel.text = "\(Int(sender.value))"
     }
     

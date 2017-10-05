@@ -13,6 +13,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     var window: UIWindow?
     
+    var nav: UINavigationController?
+    
     func createFieldsAndSections()->[[Field]]{
         let name = Field(name:"name", title:"Nome:", cellType: NameCell.self)
         let birth = Field(name:"birthday", title:"Nascimento:", cellType: DateCell.self)
@@ -40,7 +42,15 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             if cell is ButtonCell {
                 cell?.isSelected = false
                 let dic = form.getFormData()
-                print(dic)
+                let alertController = UIAlertController(title: "Form Data", message: dic.description, preferredStyle: .alert)
+                //We add buttons to the alert controller by creating UIAlertActions:
+                let actionOk = UIAlertAction(title: "OK",
+                                             style: .default,
+                                             handler: nil) //You can use a block here to handle a press on this button
+                
+                alertController.addAction(actionOk)
+                
+                self.nav?.present(alertController, animated: true, completion: nil)
             }
         }
     }
@@ -54,14 +64,15 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         f.dateStyle = .medium
         let data:[String:AnyObject] = ["name":"Sebastian Gazolla Jr" as AnyObject,
                                        "address":"SQN 315" as AnyObject,
-                                       "birthday":f.string(from: Date()) as AnyObject,
+                                       "birthday":Date() as AnyObject,
                                        "company":"Pineapple Computers" as AnyObject,
                                        "position":"Software Engineer" as AnyObject,
                                        "salary":"200,000.00" as AnyObject,
                                        "count":0.0 as AnyObject,
                                        "Frequencia":50.0 as AnyObject]
         myForm.data = data
-        return UINavigationController(rootViewController: myForm)
+        self.nav = UINavigationController(rootViewController: myForm)
+        return self.nav!
     }
 
 

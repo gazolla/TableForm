@@ -30,7 +30,7 @@ public struct ConfigureForm{
 }
 
 
-class FormViewController: UIViewController, UITableViewDelegate, UITableViewDataSource  {
+class FormViewController: UIViewController {
     
     var items:[[Field]]
     var sections:[[FormCell]]
@@ -42,7 +42,7 @@ class FormViewController: UIViewController, UITableViewDelegate, UITableViewData
     
     lazy var tableView:FormView = {
         let tv = FormView(frame: self.view.bounds, style: .grouped)
-        tv.autoresizingMask  = [.flexibleWidth, .flexibleHeight]
+        tv.translatesAutoresizingMaskIntoConstraints = false
         tv.delegate = self
         tv.dataSource = self
         tv.keyboardDismissMode = .onDrag
@@ -128,10 +128,95 @@ class FormViewController: UIViewController, UITableViewDelegate, UITableViewData
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        navigationController?.navigationBar.prefersLargeTitles = true
         self.buildCells()
         self.view.addSubview(self.tableView)
         self.registerObservers()
     }
+    
+    override func updateViewConstraints() {
+        super.updateViewConstraints()
+        tableView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor).isActive = true
+        tableView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor).isActive = true
+        tableView.rightAnchor.constraint(equalTo: view.safeAreaLayoutGuide.rightAnchor).isActive = true
+        tableView.leftAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leftAnchor).isActive = true
+    }
+    
+    
+    func registerObservers() {
+        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow(_:)), name: NSNotification.Name.UIKeyboardWillShow, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide(_:)), name: NSNotification.Name.UIKeyboardWillHide, object: nil)
+    }
+    
+    func unregisterObservers() {
+        NotificationCenter.default.removeObserver(self, name: NSNotification.Name.UIKeyboardWillShow, object: nil)
+        NotificationCenter.default.removeObserver(self, name: NSNotification.Name.UIKeyboardWillHide, object: nil)
+    }
+    
+    @objc func textFieldTextDidEnd(_ sender: NSNotification) {
+        print("textFieldTextDidEnd")
+        _ = self.getFormData()
+    }
+    
+    @objc func keyboardWillShow(_ sender: NSNotification) {
+        _ = self.getFormData()
+        let info = sender.userInfo!
+        let keyboardSize = (info[UIKeyboardFrameEndUserInfoKey] as! NSValue).cgRectValue.height
+        
+        tableView.contentInset.bottom = keyboardSize
+    }
+    
+    @objc func keyboardWillHide(_ sender: NSNotification) {
+        _ = self.getFormData()
+        tableView.contentInset.bottom = 0
+    }
+
+}
+
+extension FormViewController:UITableViewDelegate {
+    
+    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        let section = self.sections[indexPath.section]
+        let cell = section[indexPath.item]
+        if (cell is SliderCell) {
+            return 70
+        } else if (cell is ButtonCell) {
+            return 60
+        } else if ((cell is TextViewCell) || (cell is ImageCell)){
+            return 140
+        } else {
+            return 44
+        }
+    }
+    
+    func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
+        return nil
+    }
+    
+    func tableView(_ tableView: UITableView, viewForFooterInSection section: Int) -> UIView? {
+        return nil
+    }
+    
+    func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
+        let item = sections[section][0]
+        if item is ButtonCell {
+            return 20
+        } else {
+            return 3
+        }
+    }
+    
+    func tableView(_ tableView: UITableView, heightForFooterInSection section: Int) -> CGFloat {
+        let item = sections[section][0]
+        if item is ButtonCell {
+            return 20
+        } else {
+            return 3
+        }
+    }
+}
+
+extension FormViewController:UITableViewDataSource {
     
     func numberOfSections(in tableView: UITableView) -> Int {
         return self.items.count
@@ -145,55 +230,25 @@ class FormViewController: UIViewController, UITableViewDelegate, UITableViewData
         let cell = self.sections[(indexPath as NSIndexPath).section][(indexPath as NSIndexPath).item]
         let item = items[indexPath.section][indexPath.item]
         configureCell(cell, item)
+        if indexPath.row + 1 == items[indexPath.section].count {
+            cell.tag = 999
+        } else {
+            cell.tag = 0
+        }
         return cell
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        _ = getFormData()
+        print("didselectrowat")
+        
+        for cell in tableView.visibleCells {
+            if cell is TextCell{
+                if ((cell as! TextCell).textField.isFirstResponder) == true{
+                    (cell as! TextCell).textField.resignFirstResponder()
+                }
+            }
+        }
         selectedRow(self, indexPath)
     }
-    
-    func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
-        return (section == 0) ? 6 : 3
-    }
-    
-    func tableView(_ tableView: UITableView, heightForFooterInSection section: Int) -> CGFloat {
-        return 3
-    }
-    
-    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        let section = self.sections[indexPath.section]
-        let cell = section[indexPath.item]
-        if cell is SliderCell {
-            return 70
-        } else if cell is TextViewCell {
-            return 140
-        } else {
-            return 44
-        }
-    }
-    
-    func registerObservers() {
-        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow(_:)), name: NSNotification.Name.UIKeyboardWillShow, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide(_:)), name: NSNotification.Name.UIKeyboardWillHide, object: nil)
-    }
-    
-    func unregisterObservers() {
-        NotificationCenter.default.removeObserver(self, name: NSNotification.Name.UIKeyboardWillShow, object: nil)
-        NotificationCenter.default.removeObserver(self, name: NSNotification.Name.UIKeyboardWillHide, object: nil)
-    }
-    
-    func keyboardWillShow(_ sender: NSNotification) {
-        _ = self.getFormData()
-        let info = sender.userInfo!
-        let keyboardSize = (info[UIKeyboardFrameEndUserInfoKey] as! NSValue).cgRectValue.height
-        
-        tableView.contentInset.bottom = keyboardSize
-    }
-    
-    func keyboardWillHide(_ sender: NSNotification) {
-        _ = self.getFormData()
-        tableView.contentInset.bottom = 0
-    }
-
 }
+
