@@ -15,6 +15,7 @@
 		08177D491D46A3BD00228592 /* FormViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 08177D481D46A3BD00228592 /* FormViewController.swift */; };
 		08177D4B1D46DD3A00228592 /* FormCells.swift in Sources */ = {isa = PBXBuildFile; fileRef = 08177D4A1D46DD3A00228592 /* FormCells.swift */; };
 		08284B191F8688FD00367E83 /* MyFormView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 08284B181F8688FD00367E83 /* MyFormView.swift */; };
+		0860B2891F86D01E00D76378 /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = 0860B2881F86D01E00D76378 /* README.md */; };
 		0882883E1E738F1B00DDA1C6 /* FormView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0882883D1E738F1B00DDA1C6 /* FormView.swift */; };
 /* End PBXBuildFile section */
 
@@ -50,6 +51,7 @@
 		08177D481D46A3BD00228592 /* FormViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FormViewController.swift; sourceTree = "<group>"; };
 		08177D4A1D46DD3A00228592 /* FormCells.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FormCells.swift; sourceTree = "<group>"; };
 		08284B181F8688FD00367E83 /* MyFormView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyFormView.swift; sourceTree = "<group>"; };
+		0860B2881F86D01E00D76378 /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		0882883D1E738F1B00DDA1C6 /* FormView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FormView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -81,6 +83,7 @@
 		08177D131D46A3B000228592 = {
 			isa = PBXGroup;
 			children = (
+				0860B2881F86D01E00D76378 /* README.md */,
 				08177D1E1D46A3B000228592 /* TableForm */,
 				08177D2E1D46A3B000228592 /* TableFormTests */,
 				08177D391D46A3B000228592 /* TableFormUITests */,
@@ -239,6 +242,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				0860B2891F86D01E00D76378 /* README.md in Resources */,
 				08177D221D46A3B000228592 /* Assets.xcassets in Resources */,
 				08177D251D46A3B000228592 /* LaunchScreen.storyboard in Resources */,
 			);

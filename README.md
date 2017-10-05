@@ -3,10 +3,10 @@ Programmatically use of TableView to create data entry forms for iOS
 
 ![](https://github.com/gazolla/TableForm/raw/master/screenshot.png)
 
-##Supported Platforms
+#Supported Platforms
 
-- iOS 9
-- swift 2.2
+- iOS 11
+- swift 4
 
 ##Installing
 
@@ -38,14 +38,7 @@ In order to install, you'll need to copy the `FormViewController` and `FormCells
 ###call ConfigureTable:
 
 ```swift
-let config = ConfigureForm(items: sections) { (tableView, indexPath) in
-            let cell = tableView.tableView.cellForRowAtIndexPath(indexPath)
-            if cell is ButtonCell {
-                cell?.selected = false
-                let dic = tableView.getFormData()
-                print(dic)
-            }
-  }
+let config = ConfigureForm(items: sections) 
 ```
 
 ###Set the configuration to TableViewController:
