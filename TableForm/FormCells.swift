@@ -191,8 +191,6 @@ open class TextCell: FormCell, UITextFieldDelegate {
     override func getCellData()-> (key: String, value: AnyObject){
         let key = self.name!
         let value = self.textField.text as AnyObject
-        print("cell: \(value)")
-        
         return(key, value)
     }
     
@@ -263,7 +261,7 @@ open class NumberCell: FormCell, UITextFieldDelegate {
     }
     
     public func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
-        print("amountTypedString:\(amountTypedString)")
+    //    print("amountTypedString:\(amountTypedString)")
         if string.count > 0 {
             print(string)
             amountTypedString += string
@@ -307,9 +305,9 @@ open class NumberCell: FormCell, UITextFieldDelegate {
                 strValue = strValue.replacingOccurrences(of: String(i), with: "")
             }
         }
-        print("filtered: \(strValue)")
+  //      print("filtered: \(strValue)")
         amountTypedString = strValue
-        print("amountTypedString:\(amountTypedString)")
+  //      print("amountTypedString:\(amountTypedString)")
     }
     
     override func getCellData()-> (key: String, value: AnyObject){

@@ -25,8 +25,14 @@ public struct Field{
 
 public struct ConfigureForm{
     var items:[[Field]]
-    var configureCell:(_ cell:UITableViewCell, _ item:Field)->()
-    var selectedRow:(_ form:FormViewController, _ indexPath:IndexPath)->()
+    var selectedRow:((_ form:FormViewController, _ indexPath:IndexPath)->())?
+    var configureCell:((_ cell:UITableViewCell, _ item:Field)->())?
+
+    init (items:[[Field]], selectedRow:((_ form:FormViewController, _ indexPath:IndexPath)->())?=nil, configureCell:((_ cell:UITableViewCell, _ item:Field)->())?=nil){
+        self.items = items
+        self.selectedRow = selectedRow
+        self.configureCell = configureCell
+    }
 }
 
 
@@ -34,9 +40,9 @@ class FormViewController: UIViewController {
     
     var items:[[Field]]
     var sections:[[FormCell]]
-    var selectedRow:(_ form:FormViewController, _ indexPath:IndexPath)->()
-    var configureCell:(_ cell:UITableViewCell, _ item:Field)->()
-    var buildCellsDone:(()->())?
+    var selectedRow:((_ form:FormViewController, _ indexPath:IndexPath)->())?
+    var configureCell:((_ cell:UITableViewCell, _ item:Field)->())?
+    var buildCellsDone:(()->())? 
     var data:[String:AnyObject]?
     
     
@@ -58,10 +64,11 @@ class FormViewController: UIViewController {
     
     init(config:ConfigureForm){
         self.items = config.items
-        self.configureCell = config.configureCell
-        self.selectedRow = config.selectedRow
         self.sections = [[FormCell]]()
+        self.selectedRow = config.selectedRow
         super.init(nibName: nil, bundle: nil)
+        self.configureCell = config.configureCell
+        self.view.addSubview(self.tableView)
     }
     
     required init?(coder aDecoder: NSCoder) {
@@ -107,30 +114,42 @@ class FormViewController: UIViewController {
             if cell is FormCell {
                 let tuple = (cell as! FormCell).getCellData()
                 self.data![tuple.key] = tuple.value as AnyObject?
-                print(tuple.value)
+                print(tuple)
             }
             index = self.incrementIndexPath(index!)
         }
+         print("-------------------------------")
         return self.data!
     }
     
     func setFormData(){
         for (key, value) in self.data! {
-            for cell  in tableView.visibleCells  {
-                if  (cell as! FormCell).name == key {
-                    if cell is FormCell {
-                        (cell as! FormCell).setCellData(key: key, value: value)
-                    }
+            var index:IndexPath? = IndexPath(row: 0, section: 0)
+            while index != nil {
+                let cell = self.sections[(index! as NSIndexPath).section][(index! as NSIndexPath).item]
+                if  cell.name == key {
+                    cell.setCellData(key: key, value: value)
                 }
+                index = self.incrementIndexPath(index!)
             }
         }
+        
+        
+        /*  for (key, value) in self.data! {
+         for cell  in tableView.visibleCells  { // <<==== BUG FOUND !!!!!!
+         if  (cell as! FormCell).name == key {
+         if cell is FormCell {
+         (cell as! FormCell).setCellData(key: key, value: value)
+         }
+         }
+         }
+         }*/
     }
     
     override func viewDidLoad() {
         super.viewDidLoad()
         navigationController?.navigationBar.prefersLargeTitles = true
         self.buildCells()
-        self.view.addSubview(self.tableView)
         self.registerObservers()
     }
     
@@ -167,8 +186,8 @@ class FormViewController: UIViewController {
     }
     
     @objc func keyboardWillHide(_ sender: NSNotification) {
-        _ = self.getFormData()
         tableView.contentInset.bottom = 0
+        _ = self.getFormData()
     }
 
 }
@@ -229,7 +248,7 @@ extension FormViewController:UITableViewDataSource {
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = self.sections[(indexPath as NSIndexPath).section][(indexPath as NSIndexPath).item]
         let item = items[indexPath.section][indexPath.item]
-        configureCell(cell, item)
+        configureCell?(cell, item)
         if indexPath.row + 1 == items[indexPath.section].count {
             cell.tag = 999
         } else {
@@ -239,8 +258,6 @@ extension FormViewController:UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        print("didselectrowat")
-        
         for cell in tableView.visibleCells {
             if cell is TextCell{
                 if ((cell as! TextCell).textField.isFirstResponder) == true{
@@ -248,7 +265,7 @@ extension FormViewController:UITableViewDataSource {
                 }
             }
         }
-        selectedRow(self, indexPath)
+        selectedRow?(self, indexPath)
     }
 }
 

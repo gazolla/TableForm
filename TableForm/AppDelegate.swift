@@ -36,8 +36,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }
     
     func createConfigureTableStruct(formItems:[[Field]])->ConfigureForm{
-        return ConfigureForm(items: formItems, configureCell: { (cell, field) in
-        }) { (form, indexPath) in
+        
+        return ConfigureForm(items: formItems, selectedRow: { (form, indexPath) in
             let cell = form.tableView.cellForRow(at: indexPath as IndexPath)
             if cell is ButtonCell {
                 cell?.isSelected = false
@@ -52,10 +52,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                 
                 self.nav?.present(alertController, animated: true, completion: nil)
             }
-        }
+        })
+        
     }
     
-    func createForm()->UINavigationController {
+    func createForm()->FormViewController {
         let sections = self.createFieldsAndSections()
         let config = self.createConfigureTableStruct(formItems: sections)
         let myForm = FormViewController(config:config)
@@ -70,15 +71,29 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                                        "salary":"200,000.00" as AnyObject,
                                        "count":0.0 as AnyObject,
                                        "Frequencia":50.0 as AnyObject]
-        myForm.data = data
-        self.nav = UINavigationController(rootViewController: myForm)
-        return self.nav!
+     myForm.data = data
+        
+        return myForm
     }
 
-
+    func createTabBar()->UITabBarController {
+        let delegateFormNav = UINavigationController(rootViewController: createForm())
+        let tabOneBarItem = UITabBarItem(title: "DelegateForm", image: UIImage(named: "DelegateForm"), selectedImage: UIImage(named: "DelegateForm"))
+        delegateFormNav.tabBarItem = tabOneBarItem
+        
+        let tabTwoBarItem2 = UITabBarItem(title: "MyForm", image: UIImage(named: "MyForm"), selectedImage: UIImage(named: "MyForm"))
+       let myFormNav = UINavigationController(rootViewController: MyFormViewController())
+        
+        myFormNav.tabBarItem = tabTwoBarItem2
+        
+        let tabBarCtrl =  UITabBarController()
+        tabBarCtrl.viewControllers = [delegateFormNav,myFormNav]
+        return tabBarCtrl
+    }
+    
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
         self.window = UIWindow(frame: UIScreen.main.bounds)
-        self.window!.rootViewController = createForm()
+        self.window!.rootViewController = createTabBar()
         self.window!.backgroundColor = UIColor.white
         self.window!.makeKeyAndVisible()
         return true
