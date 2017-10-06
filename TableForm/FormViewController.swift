@@ -188,7 +188,7 @@ class FormViewController: UIViewController {
     
     @objc func keyboardWillHide(_ sender: NSNotification) {
         tableView.contentInset.bottom = 0
-     //   _ = self.getFormData()
+        _ = self.getFormData()
     }
 
 }
