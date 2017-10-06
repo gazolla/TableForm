@@ -71,7 +71,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                                        "salary":"200,000.00" as AnyObject,
                                        "count":0.0 as AnyObject,
                                        "Frequencia":50.0 as AnyObject]
-     myForm.data = data
+        myForm.data = data
+
         
         return myForm
     }

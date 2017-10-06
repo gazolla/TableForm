@@ -10,7 +10,7 @@ import UIKit
 
 class MyFormViewController: FormViewController {
 
-    static func createFieldsAndSections()->[[Field]]{
+    func createFieldsAndSections()->[[Field]]{
         let name = Field(name:"name", title:"Name:", cellType: NameCell.self)
         let birth = Field(name:"birthday", title:"Birthday:", cellType: DateCell.self)
         let address = Field(name:"address", title:"Address:", cellType: TextCell.self)
@@ -32,9 +32,11 @@ class MyFormViewController: FormViewController {
         return UIBarButtonItem(barButtonSystemItem: .save, target: self, action: #selector(saveTapped))
     }()
     
-    convenience init(){
-        let config = ConfigureForm(items:MyFormViewController.createFieldsAndSections())
-        self.init(config:config)
+    override init(){
+        super.init()
+        let its = createFieldsAndSections()
+        self.items = its
+        self.sections = buildCells(items: its)
     }
     
     override init(config:ConfigureForm){

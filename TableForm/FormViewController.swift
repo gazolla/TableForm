@@ -39,7 +39,7 @@ public struct ConfigureForm{
 class FormViewController: UIViewController {
     
     var items:[[Field]]?
-    var sections:[[FormCell]]
+    var sections:[[FormCell]]?
     var selectedRow:((_ form:FormViewController, _ indexPath:IndexPath)->())?
     var configureCell:((_ cell:UITableViewCell, _ item:Field)->())?
     var buildCellsDone:(()->())? 
@@ -54,29 +54,35 @@ class FormViewController: UIViewController {
         tv.keyboardDismissMode = .onDrag
         
         tv.completion = {
-            if self.data != nil {
-                self.setFormData()
+            DispatchQueue.main.async {
+                if self.data != nil {
+                    self.setFormData()
+                }
             }
         }
-        
         return tv
     }()
     
+    init(){
+        super.init(nibName: nil, bundle: nil)
+    }
+    
     init(config:ConfigureForm){
         self.items = config.items
-        self.sections = [[FormCell]]()
         self.selectedRow = config.selectedRow
         super.init(nibName: nil, bundle: nil)
         self.configureCell = config.configureCell
-        self.view.addSubview(self.tableView)
+        if let its = self.items {
+            self.sections = self.buildCells(items: its)
+        }
     }
     
     required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
     
-    func buildCells(){
-        guard let items = self.items else { return }
+    func buildCells(items:[[Field]])->[[FormCell]]?{
+        var secs = [[FormCell]]()
         for section in items{
             var c = [FormCell]()
             for it in section {
@@ -85,8 +91,9 @@ class FormViewController: UIViewController {
                 instance.textLabel?.text = "\(it.title)"
                 c.append(instance)
             }
-            self.sections.append(c)
+            secs.append(c)
         }
+        return secs
     }
     
     func incrementIndexPath(_ indexPath: IndexPath) -> IndexPath? {
@@ -124,10 +131,11 @@ class FormViewController: UIViewController {
     }
     
     func setFormData(){
+        guard let sections = self.sections else { return }
         for (key, value) in self.data! {
             var index:IndexPath? = IndexPath(row: 0, section: 0)
             while index != nil {
-                let cell = self.sections[(index! as NSIndexPath).section][(index! as NSIndexPath).item]
+                let cell = sections[(index! as NSIndexPath).section][(index! as NSIndexPath).item]
                 if  cell.name == key && value != nil {
                     cell.setCellData(key: key, value: value!)
                 }
@@ -139,7 +147,7 @@ class FormViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         navigationController?.navigationBar.prefersLargeTitles = true
-        self.buildCells()
+        self.view.addSubview(self.tableView)
     }
     
     override func viewDidAppear(_ animated: Bool) {
@@ -174,12 +182,10 @@ class FormViewController: UIViewController {
     }
     
     @objc func textFieldTextDidEnd(_ sender: NSNotification) {
-        print("textFieldTextDidEnd")
         _ = self.getFormData()
     }
     
     @objc func keyboardWillShow(_ sender: NSNotification) {
-     //   _ = self.getFormData()
         let info = sender.userInfo!
         let keyboardSize = (info[UIKeyboardFrameEndUserInfoKey] as! NSValue).cgRectValue.height
         
@@ -196,7 +202,7 @@ class FormViewController: UIViewController {
 extension FormViewController:UITableViewDelegate {
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        let section = self.sections[indexPath.section]
+        guard let section = self.sections?[indexPath.section] else { return 0.0 }
         let cell = section[indexPath.item]
         if (cell is SliderCell) {
             return 70
@@ -218,7 +224,7 @@ extension FormViewController:UITableViewDelegate {
     }
     
     func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
-        let item = sections[section][0]
+        guard let item = sections?[section][0] else { return 0.0 }
         if item is ButtonCell {
             return 20
         } else {
@@ -227,7 +233,7 @@ extension FormViewController:UITableViewDelegate {
     }
     
     func tableView(_ tableView: UITableView, heightForFooterInSection section: Int) -> CGFloat {
-        let item = sections[section][0]
+        guard let item = sections?[section][0] else { return 0.0 }
         if item is ButtonCell {
             return 20
         } else {
@@ -239,16 +245,22 @@ extension FormViewController:UITableViewDelegate {
 extension FormViewController:UITableViewDataSource {
     
     func numberOfSections(in tableView: UITableView) -> Int {
+        print("numberOfSections")
+        print("sections: \(self.sections?.count ?? -1)")
+        if self.sections == nil  { return 0 }
         return self.items?.count ?? 0
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        print("numberOfRowsInSection")
+        print("sections: \(self.sections?.count ?? -1)")
+        if self.sections == nil { return 0 }
         return self.items?[section].count ?? 0
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = self.sections[(indexPath as NSIndexPath).section][(indexPath as NSIndexPath).item]
-        guard let items = self.items else { return cell }
+        guard let items = self.items, let sections = self.sections else { return UITableViewCell() }
+        let cell = sections[(indexPath as NSIndexPath).section][(indexPath as NSIndexPath).item]
         let item = items[indexPath.section][indexPath.item]
         configureCell?(cell, item)
         if indexPath.row + 1 == items[indexPath.section].count {
