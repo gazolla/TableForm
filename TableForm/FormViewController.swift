@@ -38,12 +38,12 @@ public struct ConfigureForm{
 
 class FormViewController: UIViewController {
     
-    var items:[[Field]]
+    var items:[[Field]]?
     var sections:[[FormCell]]
     var selectedRow:((_ form:FormViewController, _ indexPath:IndexPath)->())?
     var configureCell:((_ cell:UITableViewCell, _ item:Field)->())?
     var buildCellsDone:(()->())? 
-    var data:[String:AnyObject]?
+    var data:[String:AnyObject?]?
     
     
     lazy var tableView:FormView = {
@@ -76,7 +76,8 @@ class FormViewController: UIViewController {
     }
     
     func buildCells(){
-        for section in self.items{
+        guard let items = self.items else { return }
+        for section in items{
             var c = [FormCell]()
             for it in section {
                 let instance = it.cellType.init(style: .default, reuseIdentifier: it.cellId) as! FormCell
@@ -106,8 +107,8 @@ class FormViewController: UIViewController {
         return nextIndexPath
     }
     
-    func getFormData()->[String:AnyObject]{
-        self.data = [String:AnyObject]()
+    func getFormData()->[String:AnyObject?]{
+        if self.data == nil { self.data = [String:AnyObject?]() }
         var index:IndexPath? = IndexPath(row: 0, section: 0)
         while index != nil {
             let cell = self.tableView.cellForRow(at: index!)
@@ -127,30 +128,28 @@ class FormViewController: UIViewController {
             var index:IndexPath? = IndexPath(row: 0, section: 0)
             while index != nil {
                 let cell = self.sections[(index! as NSIndexPath).section][(index! as NSIndexPath).item]
-                if  cell.name == key {
-                    cell.setCellData(key: key, value: value)
+                if  cell.name == key && value != nil {
+                    cell.setCellData(key: key, value: value!)
                 }
                 index = self.incrementIndexPath(index!)
             }
         }
-        
-        
-        /*  for (key, value) in self.data! {
-         for cell  in tableView.visibleCells  { // <<==== BUG FOUND !!!!!!
-         if  (cell as! FormCell).name == key {
-         if cell is FormCell {
-         (cell as! FormCell).setCellData(key: key, value: value)
-         }
-         }
-         }
-         }*/
     }
     
     override func viewDidLoad() {
         super.viewDidLoad()
         navigationController?.navigationBar.prefersLargeTitles = true
         self.buildCells()
-        self.registerObservers()
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        registerObservers()
+    }
+    
+    override func viewDidDisappear(_ animated: Bool) {
+        super.viewDidDisappear(animated)
+        unregisterObservers()
     }
     
     override func updateViewConstraints() {
@@ -165,11 +164,13 @@ class FormViewController: UIViewController {
     func registerObservers() {
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow(_:)), name: NSNotification.Name.UIKeyboardWillShow, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide(_:)), name: NSNotification.Name.UIKeyboardWillHide, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(textFieldTextDidEnd(_:)), name: NSNotification.Name.UITextFieldTextDidEndEditing, object: nil)
     }
     
     func unregisterObservers() {
         NotificationCenter.default.removeObserver(self, name: NSNotification.Name.UIKeyboardWillShow, object: nil)
         NotificationCenter.default.removeObserver(self, name: NSNotification.Name.UIKeyboardWillHide, object: nil)
+        NotificationCenter.default.removeObserver(self, name: NSNotification.Name.UITextFieldTextDidEndEditing, object: nil)
     }
     
     @objc func textFieldTextDidEnd(_ sender: NSNotification) {
@@ -178,7 +179,7 @@ class FormViewController: UIViewController {
     }
     
     @objc func keyboardWillShow(_ sender: NSNotification) {
-        _ = self.getFormData()
+     //   _ = self.getFormData()
         let info = sender.userInfo!
         let keyboardSize = (info[UIKeyboardFrameEndUserInfoKey] as! NSValue).cgRectValue.height
         
@@ -187,7 +188,7 @@ class FormViewController: UIViewController {
     
     @objc func keyboardWillHide(_ sender: NSNotification) {
         tableView.contentInset.bottom = 0
-        _ = self.getFormData()
+     //   _ = self.getFormData()
     }
 
 }
@@ -238,15 +239,16 @@ extension FormViewController:UITableViewDelegate {
 extension FormViewController:UITableViewDataSource {
     
     func numberOfSections(in tableView: UITableView) -> Int {
-        return self.items.count
+        return self.items?.count ?? 0
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return self.items[section].count
+        return self.items?[section].count ?? 0
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = self.sections[(indexPath as NSIndexPath).section][(indexPath as NSIndexPath).item]
+        guard let items = self.items else { return cell }
         let item = items[indexPath.section][indexPath.item]
         configureCell?(cell, item)
         if indexPath.row + 1 == items[indexPath.section].count {

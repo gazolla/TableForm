@@ -178,10 +178,11 @@ open class TextCell: FormCell, UITextFieldDelegate {
     }
     
     open func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+         print("textFieldShouldReturn")
         textField.resignFirstResponder()
         return true
     }
-    
+        
     override func setCellData(key: String, value: AnyObject){
         if let strValue = value as? String {
             self.textField.text! = strValue
@@ -351,6 +352,12 @@ open class NameCell : TextCell {
         textField.autocorrectionType = .no
         textField.autocapitalizationType = .words
         textField.keyboardType = .asciiCapable
+    }
+    
+    override open func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        print("textFieldShouldReturn")
+        textField.resignFirstResponder()
+        return true
     }
 }
 

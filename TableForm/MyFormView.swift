@@ -11,8 +11,8 @@ import UIKit
 class MyFormViewController: FormViewController {
 
     static func createFieldsAndSections()->[[Field]]{
-        let name = Field(name:"name", title:"Nome:", cellType: NameCell.self)
-        let birth = Field(name:"birthday", title:"Nascimento:", cellType: DateCell.self)
+        let name = Field(name:"name", title:"Name:", cellType: NameCell.self)
+        let birth = Field(name:"birthday", title:"Birthday:", cellType: DateCell.self)
         let address = Field(name:"address", title:"Address:", cellType: TextCell.self)
         let sectionPersonal = [name, address, birth]
         let company = Field(name:"company", title:"Company:", cellType: TextCell.self)
