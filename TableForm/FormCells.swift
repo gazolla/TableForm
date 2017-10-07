@@ -507,11 +507,21 @@ open class ButtonCell: FormCell, UITextFieldDelegate {
 
 open class LinkCell : FormCell {
     
-    var label = UILabel()
+    lazy var valueLabel:UILabel = {
+        let l = UILabel()
+        l.translatesAutoresizingMaskIntoConstraints = false
+        l.baselineAdjustment = .alignCenters
+        l.textAlignment = .right
+        l.font =  UIFont.preferredFont(forTextStyle: UIFontTextStyle.body)
+        l.textColor = UIColor.black
+        l.backgroundColor = UIColor.clear
+        return l
+    }()
     
     override init(style: UITableViewCellStyle, reuseIdentifier: String?) {
-        super.init(style: .default, reuseIdentifier: reuseIdentifier)
+        super.init(style:.value1, reuseIdentifier: reuseIdentifier)
         self.setup()
+        textLabel?.textColor = .black
     }
     
     required  public init?(coder aDecoder: NSCoder) {
@@ -526,11 +536,36 @@ open class LinkCell : FormCell {
     
     override func setup() {
         super.setup()
-        self.label.textAlignment = .right
-        accessoryType = UITableViewCellAccessoryType.disclosureIndicator
+        accessoryType = .disclosureIndicator
         editingAccessoryType =  .none
+        addSubview(valueLabel)
     }
     
+    open override func updateConstraints() {
+        super.updateConstraints()
+        let margins = self.layoutMarginsGuide
+        valueLabel.heightAnchor.constraint(equalTo: margins.heightAnchor, multiplier: 0.8).isActive = true
+        valueLabel.centerYAnchor.constraint(equalTo: margins.centerYAnchor).isActive = true
+        valueLabel.rightAnchor.constraint(equalTo: margins.rightAnchor, constant:-40).isActive = true
+        valueLabel.widthAnchor.constraint(equalTo: margins.widthAnchor, multiplier: 0.5).isActive = true
+    }
+  
+    open override func prepareForReuse() {
+        super.prepareForReuse()
+        valueLabel.text = ""
+    }
+    
+    override func setCellData(key: String, value: AnyObject){
+        if let strValue = value as? String {
+            valueLabel.text = strValue
+        }
+    }
+    
+    override func getCellData()-> (key: String, value: AnyObject){
+        let key = self.name!
+        let value = valueLabel.text as AnyObject
+        return(key, value)
+    }
     
 }
 

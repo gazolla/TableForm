@@ -26,7 +26,7 @@ public struct Field{
 public struct ConfigureForm{
     var items:[[Field]]
     var selectedRow:((_ form:FormViewController, _ indexPath:IndexPath)->())?
-    var configureCell:((_ cell:UITableViewCell, _ item:Field)->())?
+    var configureCell:((_ cell:FormCell, _ item:Field)->())?
 
     init (items:[[Field]], selectedRow:((_ form:FormViewController, _ indexPath:IndexPath)->())?=nil, configureCell:((_ cell:UITableViewCell, _ item:Field)->())?=nil){
         self.items = items
@@ -41,7 +41,7 @@ class FormViewController: UIViewController {
     var items:[[Field]]?
     var sections:[[FormCell]]?
     var selectedRow:((_ form:FormViewController, _ indexPath:IndexPath)->())?
-    var configureCell:((_ cell:UITableViewCell, _ item:Field)->())?
+    var configureCell:((_ cell:FormCell, _ item:Field)->())?
     var buildCellsDone:(()->())? 
     var data:[String:AnyObject?]?
     

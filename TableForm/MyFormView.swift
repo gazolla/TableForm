@@ -9,6 +9,14 @@
 import UIKit
 
 class MyFormViewController: FormViewController {
+    
+    var gender:String? {
+        didSet{
+               if let cell = self.sections?[2][0], let gender = self.gender {
+                    (cell as! LinkCell).valueLabel.text = gender
+                }
+            }
+    }
 
     func createFieldsAndSections()->[[Field]]{
         let name = Field(name:"name", title:"Name:", cellType: NameCell.self)
@@ -19,17 +27,43 @@ class MyFormViewController: FormViewController {
         let position = Field(name:"position", title:"Position:", cellType: TextCell.self)
         let salary = Field(name:"salary", title:"Salary:", cellType: NumberCell.self)
         let sectionProfessional = [company, position, salary]
-        let slider = Field(name: "test", title:"test:", cellType: SliderCell.self)
-        let sectionSlider = [slider]
-        let swap = Field(name: "cool", title:"Is it cool?", cellType: SwitchCell.self)
-        let sectionSwap = [swap]
-        let stepper = Field(name: "count", title:"Count:", cellType: StepperCell.self)
-        let sectionStepper = [stepper]
-        return [sectionPersonal, sectionProfessional, sectionSlider, sectionSwap, sectionStepper]
+        let gender = Field(name: "gender", title:"Gender:", cellType: LinkCell.self)
+        let sectionGender = [gender]
+        return [sectionPersonal, sectionProfessional, sectionGender]
     }
     
     lazy var saveButton: UIBarButtonItem = {
         return UIBarButtonItem(barButtonSystemItem: .save, target: self, action: #selector(saveTapped))
+    }()
+    
+    lazy var genderList = { ()-> TableViewController<String> in
+        let genders = ["male", "female"]
+        let genderList = TableViewController(items:genders, cellType: UITableViewCell.self)
+        
+        genderList.configureCell = { (cell, item, indexPath) in
+            cell.textLabel?.text = "\(item)"
+        }
+        
+        genderList.selectedRow = { (controller, indexPath) in
+            if let cell  = controller.tableView.cellForRow(at: indexPath as IndexPath){
+                cell.accessoryType = .checkmark
+                controller.selected = indexPath
+                self.gender = cell.textLabel?.text
+            }
+            controller.navigationController?.popViewController(animated: true)
+        }
+        
+        genderList.deselectedRow = { (controller, indexPath) in
+            if controller.selected != nil {
+                if let cell  = controller.tableView.cellForRow(at: controller.selected!){
+                    cell.accessoryType = .none
+                }
+            }
+        }
+        
+        genderList.title = "Venues"
+        
+        return genderList
     }()
     
     override init(){
@@ -37,6 +71,15 @@ class MyFormViewController: FormViewController {
         let its = createFieldsAndSections()
         self.items = its
         self.sections = buildCells(items: its)
+        self.selectedRow = { [weak self] (form:FormViewController,indexPath:IndexPath) in
+            let cell = form.tableView.cellForRow(at: indexPath)
+            cell?.isSelected = false
+            if cell is LinkCell {
+                if (cell as! FormCell).name == "gender" {
+                    self?.navigationController?.pushViewController(self!.genderList, animated: true)
+                }
+            }
+        }
     }
     
     override init(config:ConfigureForm){
@@ -52,6 +95,10 @@ class MyFormViewController: FormViewController {
         title = "Employee"
         navigationItem.rightBarButtonItem = saveButton
         navigationController?.navigationBar.prefersLargeTitles = true
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
     }
     
     @objc func saveTapped(){
