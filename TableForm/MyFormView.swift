@@ -69,7 +69,7 @@ class MyFormViewController: FormViewController {
     override init(){
         super.init()
         let its = createFieldsAndSections()
-        self.items = its
+        self.fields = its
         self.sections = buildCells(items: its)
         self.selectedRow = { [weak self] (form:FormViewController,indexPath:IndexPath) in
             let cell = form.tableView.cellForRow(at: indexPath)

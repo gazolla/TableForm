@@ -35,9 +35,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         return [sectionPersonal, sectionProfessional, sectionSlider, sectionSwap, sectionStepper, sectionButton]
     }
     
-    func createConfigureTableStruct(formItems:[[Field]])->ConfigureForm{
+    func createConfigureTableStruct(formFields:[[Field]])->ConfigureForm{
         
-        return ConfigureForm(items: formItems, selectedRow: { (form, indexPath) in
+        return ConfigureForm(fields: formFields, selectedRow: { (form, indexPath) in
             let cell = form.tableView.cellForRow(at: indexPath as IndexPath)
             if cell is ButtonCell {
                 cell?.isSelected = false
@@ -57,8 +57,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }
     
     func createForm()->FormViewController {
-        let sections = self.createFieldsAndSections()
-        let config = self.createConfigureTableStruct(formItems: sections)
+        let formFields = self.createFieldsAndSections()
+        let config = self.createConfigureTableStruct(formFields: formFields)
         let myForm = FormViewController(config:config)
         myForm.title = "Form"
         let f = DateFormatter()

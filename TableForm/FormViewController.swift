@@ -24,12 +24,12 @@ public struct Field{
 }
 
 public struct ConfigureForm{
-    var items:[[Field]]
+    var fields:[[Field]]
     var selectedRow:((_ form:FormViewController, _ indexPath:IndexPath)->())?
     var configureCell:((_ cell:FormCell, _ item:Field)->())?
 
-    init (items:[[Field]], selectedRow:((_ form:FormViewController, _ indexPath:IndexPath)->())?=nil, configureCell:((_ cell:UITableViewCell, _ item:Field)->())?=nil){
-        self.items = items
+    init (fields:[[Field]], selectedRow:((_ form:FormViewController, _ indexPath:IndexPath)->())?=nil, configureCell:((_ cell:UITableViewCell, _ item:Field)->())?=nil){
+        self.fields = fields
         self.selectedRow = selectedRow
         self.configureCell = configureCell
     }
@@ -38,7 +38,8 @@ public struct ConfigureForm{
 
 class FormViewController: UIViewController {
     
-    var items:[[Field]]?
+    var hiddenData:[String:AnyObject?]?
+    var fields:[[Field]]?
     var sections:[[FormCell]]?
     var selectedRow:((_ form:FormViewController, _ indexPath:IndexPath)->())?
     var configureCell:((_ cell:FormCell, _ item:Field)->())?
@@ -68,11 +69,11 @@ class FormViewController: UIViewController {
     }
     
     init(config:ConfigureForm){
-        self.items = config.items
+        self.fields = config.fields
         self.selectedRow = config.selectedRow
         super.init(nibName: nil, bundle: nil)
         self.configureCell = config.configureCell
-        if let its = self.items {
+        if let its = self.fields {
             self.sections = self.buildCells(items: its)
         }
     }
@@ -127,6 +128,13 @@ class FormViewController: UIViewController {
             index = self.incrementIndexPath(index!)
         }
          print("-------------------------------")
+        if let hiddenData = hiddenData {
+            if hiddenData.count > 0{
+                for (key, value) in hiddenData {
+                    data![key] = value
+                }
+            }
+        }
         return self.data!
     }
     
@@ -248,18 +256,18 @@ extension FormViewController:UITableViewDataSource {
         print("numberOfSections")
         print("sections: \(self.sections?.count ?? -1)")
         if self.sections == nil  { return 0 }
-        return self.items?.count ?? 0
+        return self.fields?.count ?? 0
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         print("numberOfRowsInSection")
         print("sections: \(self.sections?.count ?? -1)")
         if self.sections == nil { return 0 }
-        return self.items?[section].count ?? 0
+        return self.fields?[section].count ?? 0
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        guard let items = self.items, let sections = self.sections else { return UITableViewCell() }
+        guard let items = self.fields, let sections = self.sections else { return UITableViewCell() }
         let cell = sections[(indexPath as NSIndexPath).section][(indexPath as NSIndexPath).item]
         let item = items[indexPath.section][indexPath.item]
         configureCell?(cell, item)
