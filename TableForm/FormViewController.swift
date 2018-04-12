@@ -123,11 +123,9 @@ class FormViewController: UIViewController {
             if cell is FormCell {
                 let tuple = (cell as! FormCell).getCellData()
                 self.data![tuple.key] = tuple.value as AnyObject?
-                print(tuple)
             }
             index = self.incrementIndexPath(index!)
         }
-         print("-------------------------------")
         if let hiddenData = hiddenData {
             if hiddenData.count > 0{
                 for (key, value) in hiddenData {
@@ -135,6 +133,7 @@ class FormViewController: UIViewController {
                 }
             }
         }
+        print(data!)
         return self.data!
     }
     

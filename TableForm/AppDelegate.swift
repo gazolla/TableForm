@@ -63,6 +63,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         myForm.title = "Form"
         let f = DateFormatter()
         f.dateStyle = .medium
+        let hiddenData:[String:AnyObject] = ["id":0 as AnyObject]
         let data:[String:AnyObject] = ["name":"Sebastian Gazolla Jr" as AnyObject,
                                        "address":"SQN 315" as AnyObject,
                                        "birthday":Date() as AnyObject,
@@ -72,6 +73,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                                        "count":0.0 as AnyObject,
                                        "Frequencia":50.0 as AnyObject]
         myForm.data = data
+        myForm.hiddenData = hiddenData
 
         
         return myForm
